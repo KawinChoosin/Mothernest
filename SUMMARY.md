@@ -24,6 +24,7 @@
 * [Cloud Deployments](infrastructure/cloud-deployments.md)
 * [MLOps Architecture](infrastructure/mlops-architecture.md)
 * [CI/CD and DevSecOps](infrastructure/ci-cd-and-devsecops.md)
+* [Storage Distribution Management](infrastructure/storage-distribution-management.md)
 
 ## NETWORK
 
