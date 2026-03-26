@@ -18,6 +18,7 @@
 
 * [Overview](infrastructure/overview.md)
 * [Private Data Center Design](infrastructure/private-data-center-design/README.md)
+  * [Data Center Facility & Operations Management](infrastructure/private-data-center-design/data-center-facility-and-operations-management.md)
   * [Server and Storage Equipment](infrastructure/private-data-center-design/server-and-storage-equipment.md)
   * [Server Management](infrastructure/private-data-center-design/server-management.md)
 * [Cloud Deployments](infrastructure/cloud-deployments.md)
