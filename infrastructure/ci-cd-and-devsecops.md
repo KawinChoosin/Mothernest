@@ -6,9 +6,7 @@ icon: gear-code
 
 <figure><img src="../.gitbook/assets/diagram-export-3-26-2026-9_14_41-PM (1).png" alt=""><figcaption></figcaption></figure>
 
-### **สถาปัตยกรรม CI/CD และ DevSecOps (Hybrid Cloud Deployment)**
-
-กระบวนการนำส่งซอฟต์แวร์ (Software Delivery) ของโครงการ MotherNest ถูกออกแบบภายใต้มาตรฐาน DevSecOps เพื่อรับประกันความปลอดภัยของระบบ Health-Tech และความสามารถในการทำงานข้ามสภาพแวดล้อม (Hybrid Cloud) ระหว่างระบบ On-Premise และ GCP โดยกระบวนการทั้งหมดถูกควบคุมผ่าน Cloud Build แบ่งออกเป็น 3 ระยะหลัก:
+กระบวนการนำส่งซอฟต์แวร์ (Software Delivery) ของโครงการ MotherNest ถูกออกแบบภายใต้มาตรฐาน DevSecOps เพื่อรับประกันความปลอดภัยของระบบ Health-Tech และความสามารถในการทำงาน Hybrid Cloud ระหว่างระบบ On-Premise และ GCP โดยกระบวนการทั้งหมดถูกควบคุมผ่าน Cloud Build แบ่งออกเป็น 3 ระยะหลัก:
 
 1\. Continuous Integration & Security Pipeline (กระบวนการผสานโค้ดและตรวจสอบความปลอดภัย)
 
@@ -18,7 +16,7 @@ icon: gear-code
 
 2\. Staging Deployment (การนำขึ้นระบบทดสอบบน On-Premise)
 
-* หากการอัปเดตเกิดขึ้นใน `staging branch` ระบบจะวิ่งผ่านอุโมงค์ HA VPN (IPsec) เข้าสู่ Datacenter ขององค์กร
+* หากการอัปเดตเกิดขึ้นใน `staging branch` ระบบจะวิ่งผ่าน HA VPN Tunnel (IPsec) เข้าสู่ Datacenter ขององค์กร
 * สคริปต์ DB Schema Migration จะทำงานเพื่อปรับปรุงโครงสร้างฐานข้อมูลจำลอง ก่อนที่ระบบจะนำ Image ไปรันบน Kubernetes Cluster
 * หลังจาก Deploy สำเร็จ ระบบจะรันชุดทดสอบ Automated UAT แบบ End-to-End เพื่อยืนยันความถูกต้อง และส่งผลการทดสอบแจ้งเตือนไปยังทีมพัฒนาผ่าน Pub/Sub (Slack/Discord)
 
