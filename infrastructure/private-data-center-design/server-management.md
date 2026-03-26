@@ -17,7 +17,14 @@ icon: gear
 
 ## Application Services Layer
 
-<table><thead><tr><th width="165.125">Service Name</th><th width="281.45703125">Usage</th><th width="102.71484375" data-type="number">CPU (vCPU)</th><th width="96.04296875" data-type="number">RAM (GB)</th><th width="221.47265625">Deployment Type</th><th>Linked Database</th></tr></thead><tbody><tr><td>API Gateway</td><td>ทำหน้าที่ Reverse Proxy, Load Balancing และจัดการ Traffic ขาเข้า</td><td>4</td><td>8</td><td>K8s Worker</td><td>-</td></tr><tr><td>Auth Service</td><td>จัดการ JWT Token, User Session และติดต่อ Database (PostgreSQL) เพื่อยืนยันตัวตน</td><td>4</td><td>8</td><td>K8s Worker</td><td>PostgreSQL</td></tr><tr><td>AI Inference</td><td>ประมวลผลโมเดล AI โดยโหลด Model File จาก Object Storage (MinIO)</td><td>24</td><td>64</td><td>K8s Worker</td><td>Object Storage (Models)</td></tr><tr><td>Data Sanitization</td><td>ใช้สำหรับ Pre-processing ข้อมูล, Clean ข้อมูลขยะ และจัดฟอร์แมตก่อนส่งให้ AI หรือ Database</td><td>8</td><td>16</td><td>K8s Worker</td><td>-</td></tr></tbody></table>
+| **Service Name**        | **Usage (Details)**                                            | **CPU (vCPU)** | **RAM (GB)** | **Deployment Type**         |
+| ----------------------- | -------------------------------------------------------------- | -------------- | ------------ | --------------------------- |
+| Authentication Service  | จัดการระบบ Login, ออก JWT Token และตรวจสอบสิทธิ์ (RBAC)        | 0.5 - 1.0      | 0.5 - 1.0    | Kubernetes Deployment (HPA) |
+| Sensitive Data Service  | ประมวลผลและเข้ารหัสข้อมูลสุขภาพ (Medical Data) ตามมาตรฐาน PDPA | 1.0 - 1.5      | 1.0 - 2.0    | Kubernetes Deployment       |
+| Recommendation Service  | คำนวณลำดับบทความและเนื้อหาเฉพาะบุคคล (Personalized Content)    | 1.5 - 2.0      | 2.0 - 4.0    | Kubernetes Deployment (HPA) |
+| AI Inference Service    | รันโมเดลภาษาขนาดเล็ก (SLM) และประมวลผลเวกเตอร์ (SBERT/MLP)     | 2.0 - 4.0      | 4.0 - 8.0    | Kubernetes Deployment (VPA) |
+| RAG Ingestion Service   | ทำ Data Pipeline หั่นข้อความ (Chunking) และสร้าง Vector Index  | 1.0 - 2.0      | 2.0 - 4.0    | Kubernetes Job / CronJob    |
+| Data Processing Service | ทำความสะอาดและจัดระเบียบข้อมูล (ETL) ก่อนบันทึกลงฐานข้อมูล     | 1.0 - 1.5      | 1.0 - 2.0    | Kubernetes Deployment       |
 
 ## On-Premise Infrastructure Overview
 
