@@ -8,11 +8,11 @@ icon: gear
 
 #### Simplified Diagram
 
-<figure><img src="../../.gitbook/assets/diagram-export-3-25-2026-11_38_26-PM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/diagram-export-3-26-2026-10_44_54-PM.png" alt=""><figcaption></figcaption></figure>
 
 #### Full Diagram
 
-<figure><img src="../../.gitbook/assets/diagram-export-3-26-2026-12_06_28-AM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/diagram-export-3-26-2026-10_59_55-PM.png" alt=""><figcaption></figcaption></figure>
 
 #### การบริหารจัดการเซิร์ฟเวอร์และระบบเสมือนจริง (Server Management & Virtualization Cluster)
 
