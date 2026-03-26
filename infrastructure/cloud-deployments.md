@@ -28,9 +28,10 @@ icon: cloud
 
 #### 2. CI/CD Deployment Pipeline
 
-| Service     | Detail                                               | Version or Spec                                         | Estimated Monthly Cost (USD) |
-| ----------- | ---------------------------------------------------- | ------------------------------------------------------- | ---------------------------- |
-| Cloud Build | Build, Test และ Deploy ซอฟต์แวร์แบบอัตโนมัติ (CI/CD) | Serverless CI/CD Platform (Managed Service) รุ่นปี 2026 | \~$0.10                      |
+| Service           | Detail                                               | Version or Spec                                         | Estimated Monthly Cost (USD) |
+| ----------------- | ---------------------------------------------------- | ------------------------------------------------------- | ---------------------------- |
+| Cloud Build       | Build, Test และ Deploy ซอฟต์แวร์แบบอัตโนมัติ (CI/CD) | Serverless CI/CD Platform (Managed Service) รุ่นปี 2026 | \~$0.10                      |
+| Artifact Registry | คลังเก็บ Docker Images พร้อมระบบสแกนช่องโหว่         | Standard Storage (50GB)                                 | \~$5.00                      |
 
 #### **3. Application and Compute Layer**
 
@@ -68,6 +69,12 @@ icon: cloud
 | IAM (RBAC)                    | จัดการสิทธิ์และการเข้าถึงทรัพยากร                 | Standard Feature                        | $0.00 (ไม่มีค่าบริการเพิ่มเติม) |
 | Cloud KMS (CMEK)              | จัดการคีย์สำหรับเข้ารหัสข้อมูล (Encryption Keys)  | Standard (เก็บไม่กี่ Key และใช้งานน้อย) | \~$1.00                         |
 | Cloud Audit Logs              | เก็บบันทึกประวัติการเข้าถึงและการทำงาน (Security) | Standard (ฟรี 50GB แรก/เดือน)           | $0.00 (Free Tier)               |
+
+#### 8. BI, Analytics and Admin Layer
+
+| Service       | Detail                                             | Version or Spec         | Estimated Monthly Cost (USD) |
+| ------------- | -------------------------------------------------- | ----------------------- | ---------------------------- |
+| Looker Studio | ระบบ Dashboard แสดงสถิติการใช้งานและประสิทธิภาพ AI | Free Edition (Standard) | $0.00                        |
 
 #### 💡 Architectural Justifications
 
