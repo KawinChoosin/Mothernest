@@ -74,53 +74,70 @@ icon: cloud
 
 ## MLOps Architecture Diagram
 
-### 1. AI Recommendation Feed
+## 1. AI Recommendation System
 
-<figure><img src="../.gitbook/assets/ai feedback.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-26-2026-8_57_52-PM.png" alt=""><figcaption></figcaption></figure>
 
-ระบบ AI สำหรับแนะนำบทความนี้ ถูกออกแบบมาเพื่อคัดเลือกบทความที่ตรงกับความสนใจและอายุครรภ์ของคุณแม่แต่ละท่านมากที่สุด โดยทำงานอัตโนมัติผ่าน 4 ขั้นตอนหลัก ดังนี้:
+### Two-Tower Model Pipeline in Hybrid Cloud
 
-#### 1. Data Pipeline (กระบวนการเตรียมข้อมูล)
+ระบบแนะนำบทความสำหรับคุณแม่ตั้งครรภ์ (Personalized Feed) ในแอปพลิเคชัน MotherNest ถูกออกแบบด้วยสถาปัตยกรรม Two-Tower Deep Learning ภายใต้สภาพแวดล้อมแบบ Hybrid Cloud เพื่อรักษาความปลอดภัยของข้อมูลส่วนบุคคลขั้นสูงสุด (Data Privacy) ในขณะที่ยังคงความสามารถในการสเกล (Scalability) และมีความหน่วงต่ำ (Low Latency) โครงสร้างสถาปัตยกรรมแบ่งออกเป็น 5 โซนหลัก ดังนี้:
 
-จุดเริ่มต้นของการรวบรวมและทำความสะอาดข้อมูล เพื่อเตรียมพร้อมสำหรับการสอนโมเดล
+#### 1. องค์ประกอบของสถาปัตยกรรม (System Components by Zone)
 
-* แหล่งที่มาข้อมูล:
-  * Cloud Storage: จัดเก็บข้อมูลทั่วไป เช่น เนื้อหาบทความ , หมวดหมู่ และอายุครรภ์ที่เหมาะสมของบทความ
-  * Secure Data Center (On-premise): จัดเก็บข้อมูลสุขภาพที่ละเอียดอ่อน เช่น อายุครรภ์จริง และประวัติการอ่าน ข้อมูลส่วนนี้จะถูกส่งผ่านช่องทางที่ปลอดภัย (Fortinet FortiGate และ HA VPN IPSec Tunnel) เท่านั้น
-* Preprocessing: ข้อมูลทั้งหมดจะถูกส่งมาพักไว้ที่ Cloud Firestore ก่อนที่ Cloud Run Jobs จะเริ่มทำงาน
-  * Data Cleaning: ทำความสะอาดและจัดรูปแบบข้อมูลดิบ
-  * Feature Engineering: แปลงข้อมูลให้อยู่ในรูปแบบที่โมเดลใช้งานได้ (Features) และนำไปจัดเก็บไว้ที่ Cloud Firestore (Feature Store) เพื่อรอการนำไปใช้งาน
+*   ZONE 0: On-Premise Secure Datacenter (ศูนย์ข้อมูลความปลอดภัยสูง)
 
-#### 2. ML Pipeline (กระบวนการเทรนโมเดล)
+    เป็นแหล่งเก็บข้อมูลหลัก (Source of Truth) โดยมี PostgreSQL 16 จัดเก็บข้อมูลอายุครรภ์ (Gestational Age) และข้อมูลส่วนบุคคล ซึ่งถูกปกป้องด้วย Fortinet FortiGate HA และเชื่อมต่อกับคลาวด์ผ่านอุโมงค์เข้ารหัส HA VPN (IPsec Tunnel)
+*   ZONE 1: Data Pipeline & Feature Store (ส่งข้อมูลและคลังฟีเจอร์)
 
-นำ Features ที่เตรียมไว้มาสอนให้ AI เรียนรู้พฤติกรรมและความสนใจของผู้ใช้งานผ่าน Cloud Run Jobs (Training)
+    ประกอบด้วย Cloud Storage สำหรับเก็บไฟล์บทความดิบ, Cloud Run Job สำหรับทำ Data Preparation, และ BigQuery ซึ่งทำหน้าที่เป็น Feature Store และ Label Store สำหรับเก็บสถิติการคลิก นอกจากนี้ยังมี Firestore (Profile Cache) ทำหน้าที่เป็นแคชความเร็วสูงสำหรับข้อมูลโปรไฟล์ออนไลน์
+*   ZONE 2: MLOps & Offline Pipeline (ฝึกสอนโมเดลอัตโนมัติ)
 
-* Item Representation:
-  * SBERT Embedding Job: แปลงเนื้อหาบทความ หมวดหมู่ และ อายุครรภ์ที่เหมาะสมของบทความ ให้เป็นชุดตัวเลข (Embedding Vector)
-  * MLP Item Tower: รับค่าที่ได้มาบีบอัดขนาดลงจนได้เป็น `item_vector` ซึ่งเป็นตัวแทนความหมายของบทความแต่ละชิ้น
-* User Representation: MLP User Tower: นำ อายุครรภ์จริง และประวัติการอ่านมาแปลงเป็น `user_vector` ของผู้ใช้แต่ละคน
-* BCE Joint Training: นำ `item_vector` และ `user_vector` มาจับคู่กันเพื่อคำนวณคะแนน (Dot Product) แล้วเทียบกับประวัติการคลิกจริงด้วย BCE Loss เพื่อสอนให้โมเดลรู้ว่า บทความแบบไหนที่ผู้ใช้คนนี้มีแนวโน้มจะสนใจ
-* Model Registration: ตัวชี้วัดความแม่นยำ (เช่น Loss, AUC-ROC) จะถูกบันทึกเพื่อวัดผล และตัวโมเดลจะถูกจัดเก็บเวอร์ชันไว้ที่ Vertex AI Model Registry (รองรับการ Rollback หากจำเป็น)
-  * `item_vectors` ทั้งหมดของระบบจะถูกทำดัชนีส่งเข้าไปเก็บที่ Vertex AI Vector Search เพื่อเตรียมพร้อมสำหรับการค้นหา
+    ใช้ Vertex AI Training ในการฝึกสอนโมเดลแบบคู่ขนาน (Joint Training) ตามสถาปัตยกรรม Two-Tower และจัดเก็บโมเดลที่ฝึกเสร็จแล้วใน Model Registry จากนั้นใช้ Cloud Run Job แปลงบทความทั้งหมดเป็นเวกเตอร์เพื่อเก็บใน Vertex AI Vector Search
+*   ZONE 3: Online Serving Pipeline (กระบวนการให้บริการแบบเรียลไทม์)
 
-#### 3. Deployment Pipeline (กระบวนการใช้งานจริง)
+    รับทราฟฟิกผ่าน Global Load Balancer (พร้อม Cloud Armor WAF) เพื่อความปลอดภัยระดับเครือข่าย และประมวลผลการจัดอันดับบทความผ่าน RecSys Engine (Cloud Run) ซึ่งออกแบบโครงสร้างภายในเป็น Modular Monolith
+*   ZONE 4: Monitoring & Feedback (ระบบติดตามและผลตอบรับ)
 
-เมื่อผู้ใช้งานเปิดแอปพลิเคชัน ระบบจะทำการประมวลผลเพื่อดึงบทความมาแสดงผลแบบ Real-time ที่ Cloud Run Backend (Serving)
+    ใช้ Event Tracker (Cloud Audit Logs) บันทึกพฤติกรรมการใช้งาน (คลิก = 1, เลื่อนผ่าน = 0) และมี Cloud Scheduler เป็นตัวจุดชนวนกระบวนการฝึกสอนซ้ำ (Retraining) ทุกสัปดาห์
 
-* User Vector Inference: เมื่อแอปส่ง Request เข้ามาพร้อม `user_id` ระบบจะดึงข้อมูล อายุครรภ์จริง และประวัติการอ่านจาก Data Center มาเข้าโมเดล User Tower เพื่อคำนวณ `user_vector` ล่าสุด ณ ขณะนั้น
-* Candidate Retrieval: ส่ง `user_vector` ไปที่ Vertex AI Vector Search เพื่อค้นหาบทความ (ANN Query) ที่มีความใกล้เคียงกับความสนใจที่สุด (Candidate Articles)
-* Score and Rank: นำ Candidate ที่ได้มาคำนวณคะแนน Preference Score (จาก `user_vector` x `item_vector`) รวมกับ Time Relevance Score (ความเหมาะสมกับอายุครรภ์ปัจจุบัน) แล้วจัดเรียงลำดับบทความจากคะแนนมากไปน้อย
-* Filter Module: คัดกรองบทความที่ผู้ใช้งาน "เคยอ่านไปแล้ว" ออกจากรายการ เพื่อส่งมอบ JSON ผลลัพธ์บทความใหม่ๆ กลับไปที่ Mobile App
+***
 
-#### 4. Monitoring & Feedback Loop (กระบวนการตรวจสอบและเรียนรู้อัตโนมัติ)
+#### 2. การไหลของข้อมูลและกระบวนการทำงาน (Data Flow & Operational Steps)
 
-ระบบถูกออกแบบให้สามารถเรียนรู้และเก่งขึ้นได้เอง โดยไม่ต้องใช้คนเข้าไปสั่ง Retrain
+กระบวนการทำงานของระบบถูกแบ่งออกเป็น 4 เฟสหลัก เพื่อแยกภาระงาน (Decoupling) ระหว่างส่วนที่ต้องการความเร็วแบบเรียลไทม์ และส่วนที่ประมวลผลแบบเบื้องหลัง:
 
-* Feedback Collection: ทุกครั้งที่ผู้ใช้กดอ่านหรือเลื่อนผ่านบทความ แอปจะส่ง Click Event (`user_id`, `article_id`, สถานะการคลิก) ผ่าน Cloud Audit Logs ไปสะสมเป็น Labeled Data ชุดใหม่ที่ Cloud Firestore (Label Store)
-* Drift Detection: ระบบ Cloud Monitoring จะคอยตรวจสอบความแม่นยำของโมเดล หากพบว่าพฤติกรรมผู้ใช้เปลี่ยนไปจนเกินเกณฑ์ที่กำหนด (Data Drift) ระบบจะส่งการแจ้งเตือน
-* Auto-Retraining: เมื่อถึงรอบเวลาที่กำหนด หรือได้รับการแจ้งเตือน Drift Cloud Scheduler จะกระตุ้น (Trigger) ให้ระบบดึงข้อมูลพฤติกรรมชุดใหม่ล่าสุดเข้าสู่กระบวนการ ML Pipeline อีกครั้ง ทำให้ Recommendation Feed แม่นยำและอัปเดตอยู่เสมอ
+Phase 1: การเตรียมข้อมูลและการซิงโครไนซ์ (Data Prep & Sync)
 
-## 2. Comprehensive Microservices RAG in Hybrid Cloud
+ระบบทำงานแบบ Batch Processing โดยดึงข้อมูลอายุครรภ์และประวัติการอ่านจาก On-Premise ผ่าน VPN มาพักไว้ที่ Firestore (Profile Cache) เพื่อให้ระบบออนไลน์สืบค้นได้รวดเร็วโดยไม่ต้องรอ Network Latency จาก VPN และส่งข้อมูลบทความที่ทำความสะอาดแล้วไปเก็บไว้ที่ BigQuery Feature Store
+
+Phase 2: การฝึกสอนโมเดลและการสร้างเวกเตอร์ (MLOps & Vector Generation)
+
+* Joint Training: ทุกสัปดาห์ Cloud Scheduler จะสั่งให้ Vertex AI ดึงข้อมูลจาก BigQuery มาสอนโมเดล โดยฝึกสอน User Tower (วิเคราะห์อายุครรภ์และประวัติการอ่าน) และ Item Tower (วิเคราะห์เนื้อหาด้วย SBERT และหมวดหมู่บทความ) ไปพร้อมๆ กัน โดยปรับน้ำหนักโมเดลผ่านฟังก์ชัน BCE Loss (Binary Cross-Entropy) เทียบกับพฤติกรรมการคลิกจริงของผู้ใช้
+* Vector Pool Update: โมเดล Item Tower ที่สมบูรณ์จะถูกโหลดไปสร้าง Item Vector สำหรับบทความทั้งหมด และบันทึกลง Vertex AI Vector Search เพื่อรอการถูกสืบค้น
+
+Phase 3: การให้บริการจัดอันดับบทความแบบเรียลไทม์ (Real-Time Serving) เมื่อผู้ใช้งานร้องขอหน้า Feed ข้อมูลจะวิ่งผ่าน Global Load Balancer เข้าสู่ RecSys Engine ซึ่งจะทำงาน 3 ขั้นตอนต่อเนื่องในระดับหน่วยความจำ (In-memory Flow):
+
+1. User Vector Inference: ดึงข้อมูลจาก Profile Cache มาเข้าโมเดล User Tower เพื่อแปลงความสนใจของผู้ใช้ออกมาเป็นเวกเตอร์
+2. Hybrid Scoring: นำ User Vector ไปยิงคำสั่งค้นหา (ANN Query) ใน Vector Search เพื่อหาบทความที่มีค่า Semantic Score สูงสุด นำมาเข้าสมการคณิตศาสตร์ (Weighted Sum) รวมกับ Stage Score (ความสอดคล้องกับอายุครรภ์ ณ ปัจจุบัน) เพื่อให้ได้คะแนนความเหมาะสมขั้นสุดท้าย
+3. Read Article Filter: กรองบทความที่ผู้ใช้เคยอ่านไปแล้วออก ก่อนส่งผลลัพธ์ (Ranked Feed) กลับไปแสดงผลบนแอปพลิเคชัน
+
+Phase 4: วงจรเรียนรู้อย่างต่อเนื่อง (The Feedback Loop)
+
+ทุกเหตุการณ์การคลิก (Click Events) จะถูกบันทึกผ่าน Event Tracker และส่งไปเก็บสะสมใน BigQuery เพื่อทำหน้าที่เป็น Ground Truth (Labels) สำหรับรอบการฝึกสอนโมเดลในสัปดาห์ถัดไป ทำให้ AI ฉลาดขึ้นและเข้าใจเทรนด์ความสนใจของคุณแม่ที่เปลี่ยนไปตามกาลเวลา
+
+***
+
+#### 💡Architectural Justifications
+
+เพื่อให้ระบบเหมาะสมกับผู้ใช้งาน 1,000 DAU โครงการได้ตัดสินใจออกแบบทางวิศวกรรมดังนี้:
+
+1. การรวมศูนย์ด้วย Global Load Balancer: ระบบเลือกใช้ Global Load Balancer เป็นประตูด่านหน้า (Front Door) แทน API Gateway ธรรมดา เพื่อบูรณาการระบบความปลอดภัย Cloud Armor (WAF) ปกป้องทั้ง API ทั่วไปและ AI Microservices ไว้ภายใต้มาตรฐานเดียวกัน สอดคล้องกับ Main Architecture ขององค์กร
+2. การออกแบบ RecSys แบบ Modular Monolith: ภายใน RecSys Engine ถูกแบ่งโมดูลลอจิกชัดเจน (Inference, Scoring, Filtering) แต่รันอยู่ใน Cloud Run Instance เดียวกัน การออกแบบนี้ช่วยให้การส่งต่อข้อมูลเวกเตอร์ระหว่างขั้นตอนเป็นไปในลักษณะ In-Memory Execution ขจัดปัญหา HTTP Network Overhead ที่มักพบใน Distributed Microservices ทำให้สามารถส่งมอบหน้า Feed ให้ผู้ใช้งานได้ในหลักมิลลิวินาที (Milliseconds)
+3. BigQuery ในฐานะ ML Feature Store: การใช้ BigQuery เป็นศูนย์กลางรวบรวมข้อมูลทั้งฝั่ง Features (คุณลักษณะบทความและผู้ใช้) และ Labels (ประวัติการคลิก) ช่วยให้การทำ Time-travel Data สำหรับป้อนเข้า Vertex AI Training เป็นไปอย่างมีประสิทธิภาพและถูกต้องตามหลัก MLOps ระดับ Enterprise
+
+## 2. AI Chatbot
+
+Comprehensive Microservices RAG in Hybrid Cloud
 
 สถาปัตยกรรมของแชทบอท MotherNest ถูกออกแบบด้วยแนวคิด Hybrid Cloud Microservices โดยผสานจุดแข็งของการประมวลผล AI บน Google Cloud Platform เข้ากับความปลอดภัยของข้อมูลสุขภาพที่จัดเก็บแบบ On-Premise (ตามมาตรฐาน PDPA) ระบบถูกแบ่งการทำงานออกเป็น 5 โซนย่อย เพื่อให้สามารถขยายขนาด (Scale) และดูแลรักษา (Maintain) ได้อย่างอิสระ
 
