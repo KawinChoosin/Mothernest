@@ -14,7 +14,7 @@ icon: gear
 
 <figure><img src="../../.gitbook/assets/diagram-export-3-26-2026-10_59_55-PM.png" alt=""><figcaption></figcaption></figure>
 
-#### การบริหารจัดการเซิร์ฟเวอร์และระบบเสมือนจริง (Server Management & Virtualization Cluster)
+#### Server Management & Virtualization Cluster
 
 เพื่อให้การบริหารจัดการฮาร์ดแวร์ภายในศูนย์ข้อมูล (On-Premise Datacenter) เกิดประสิทธิภาพสูงสุดและมีความยืดหยุ่นต่อการขยายตัว โครงการ MotherNest ได้เปลี่ยนผ่านจากการใช้เซิร์ฟเวอร์แบบดั้งเดิม (Bare-metal) มาสู่สถาปัตยกรรม ระบบจำลองเซิร์ฟเวอร์แบบคลัสเตอร์ (Virtual Machine Cluster) โดยมีรายละเอียดการบริหารจัดการดังนี้:
 
@@ -44,7 +44,7 @@ icon: gear
 
 นำเนื้อหาส่วนนี้ไปต่อท้ายหัวข้อ Server Management ได้เลยครับ:
 
-#### 💡 การตัดสินใจเชิงวิศวกรรมสถาปัตยกรรม (Architectural Justifications)
+#### 💡 Architectural Justifications
 
 ในการออกแบบสถาปัตยกรรมระดับเซิร์ฟเวอร์ โครงการ MotherNest ได้ตัดสินใจเชิงวิศวกรรมเพื่อเพิ่มขีดความสามารถในการจัดการทรัพยากร (Resource Management) และแยกส่วนความเสียหาย (Fault Isolation) ดังนี้:
 
