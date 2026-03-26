@@ -52,3 +52,7 @@ icon: file-lines
 {% content-ref url="ci-cd-and-devsecops.md" %}
 [ci-cd-and-devsecops.md](ci-cd-and-devsecops.md)
 {% endcontent-ref %}
+
+{% content-ref url="storage-distribution-management.md" %}
+[storage-distribution-management.md](storage-distribution-management.md)
+{% endcontent-ref %}
