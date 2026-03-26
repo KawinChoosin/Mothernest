@@ -4,6 +4,8 @@ icon: gear
 
 # Server Management
 
+
+
 #### Simplified Diagram
 
 <figure><img src="../../.gitbook/assets/diagram-export-3-25-2026-11_38_26-PM.png" alt=""><figcaption></figcaption></figure>
@@ -11,6 +13,60 @@ icon: gear
 #### Full Diagram
 
 <figure><img src="../../.gitbook/assets/diagram-export-3-26-2026-12_06_28-AM.png" alt=""><figcaption></figcaption></figure>
+
+#### การบริหารจัดการเซิร์ฟเวอร์และระบบเสมือนจริง (Server Management & Virtualization Cluster)
+
+เพื่อให้การบริหารจัดการฮาร์ดแวร์ภายในศูนย์ข้อมูล (On-Premise Datacenter) เกิดประสิทธิภาพสูงสุดและมีความยืดหยุ่นต่อการขยายตัว โครงการ MotherNest ได้เปลี่ยนผ่านจากการใช้เซิร์ฟเวอร์แบบดั้งเดิม (Bare-metal) มาสู่สถาปัตยกรรม ระบบจำลองเซิร์ฟเวอร์แบบคลัสเตอร์ (Virtual Machine Cluster) โดยมีรายละเอียดการบริหารจัดการดังนี้:
+
+1\. สถาปัตยกรรมไฮเปอร์ไวเซอร์แบบคลัสเตอร์ (Clustered Hypervisor Architecture)
+
+* ระบบปฏิบัติการหลักที่ใช้บริหารจัดการทรัพยากรฮาร์ดแวร์คือ Proxmox VE (Virtual Environment) ซึ่งถูกติดตั้งลงบนเซิร์ฟเวอร์ระดับองค์กร (Physical Servers: HPE ProLiant DL380 Gen11 จำนวน 4 เครื่อง)
+* เซิร์ฟเวอร์ทางกายภาพทั้งหมดถูกผูกเข้าด้วยกันเป็น Proxmox Cluster เพื่อให้ผู้ดูแลระบบ (System Administrator) สามารถบริหารจัดการ CPU, RAM และ Storage ของทั้ง 4 เครื่องได้จากศูนย์กลาง (Single Pane of Glass) ทำให้การสร้าง ปรับแต่ง หรือลบ Virtual Machine (VM) สามารถทำได้ทันทีโดยไม่ต้องเข้าถึงหน้าเครื่อง
+
+2\. การจัดสรรทรัพยากรแบบแยกส่วน (Workload Isolation & Micro-segmentation) แทนที่จะรันทุกระบบบริการไว้ในระบบปฏิบัติการเดียว ทรัพยากรถูกนำมาแบ่งย่อยเป็น Virtual Machine (VM) ตามหน้าที่การทำงานอย่างชัดเจน (Separation of Concerns) เพื่อจำกัดวงความเสียหายหากเกิดปัญหา (Blast Radius Reduction) โดยแบ่งออกเป็นกลุ่มหลักดังนี้:
+
+* Kubernetes Cluster VMs: จัดสรร VM สำหรับรัน K8s Control Plane (Master Node) จำนวน 1 เครื่อง และ K8s Worker Nodes จำนวน 2 เครื่อง เพื่อรับหน้าที่ประมวลผล Application Workloads (เช่น Microservices ต่างๆ)
+* Database VMs: แยก VM สำหรับ PostgreSQL Primary และ Replica ออกจากกันอย่างเด็ดขาด เพื่อป้องกันการแย่งทรัพยากร (Resource Contention) จากระบบแอปพลิเคชัน
+* Utility & Governance VMs: จัดตั้ง VM เฉพาะกิจสำหรับระบบสนับสนุน เช่น Active Directory (สำหรับการยืนยันตัวตนของผู้ดูแลระบบ), NTP Server (สำหรับการซิงค์เวลามาตรฐาน), และ Object Storage
+
+3\. ความพร้อมใช้งานระดับฮาร์ดแวร์ (Hardware-Level High Availability)
+
+* การทำงานในรูปแบบ VM Cluster ช่วยให้ระบบรองรับคุณสมบัติ Live Migration และ High Availability (HA) หากเซิร์ฟเวอร์ทางกายภาพเครื่องใดเครื่องหนึ่งเกิดความเสียหาย (Hardware Failure) ระบบ Proxmox Cluster จะทำการย้ายและสตาร์ท VM ที่ได้รับผลกระทบไปรันบนเซิร์ฟเวอร์เครื่องอื่นในคลัสเตอร์ที่ยังมีทรัพยากรเหลืออยู่โดยอัตโนมัติ ทำให้ลดระยะเวลาการหยุดชะงักของระบบ (Downtime) ได้อย่างมีนัยสำคัญ
+
+4\. ระบบตรวจสอบและสำรองข้อมูลโครงสร้างพื้นฐาน (Infrastructure Monitoring & Backup)
+
+* Zabbix Monitoring: ติดตั้งบน Infrastructure Server แยกต่างหากเพื่อทำหน้าที่ตรวจสอบสถานะสุขภาพ (Health Check) ของทั้งเซิร์ฟเวอร์ทางกายภาพ (Physical Nodes) และเซิร์ฟเวอร์เสมือน (VMs) ระดับลึก เช่น อุณหภูมิ CPU, สถานะการอ่านเขียนดิสก์ (I/O), และการใช้แบนด์วิดท์เครือข่าย
+* Proxmox Backup Server (PBS): บริหารจัดการการทำ Snapshot และ Backup ระดับ VM ทั้งก้อนอย่างเป็นระบบ เพื่อให้สามารถกู้คืนระบบ (Restore) กลับมายังสถานะก่อนหน้าได้ทันทีหากเกิดข้อผิดพลาดรุนแรงระดับ OS หรือถูกโจมตีทางไซเบอร์
+
+เข้าใจแล้วครับ! คุณมาถูกทางแล้ว ถ้านี่คือหัวข้อย่อยที่โฟกัสเฉพาะ "Server Management" (การบริหารจัดการฮาร์ดแวร์และเซิร์ฟเวอร์) การใส่เรื่อง RAID 10 หรือ UPS เข้ามาจะทำให้หลุดสโคป (Out of scope) และไปซ้อนทับกับหัวข้อ Facility จริงๆ ครับ
+
+ผมได้ทำการตัดเรื่อง Facility ออกทั้งหมด และปรับปรุง "การตัดสินใจเชิงวิศวกรรมสถาปัตยกรรม (Architectural Justifications)" ใหม่ โดยเจาะลึกเฉพาะเหตุผลในการออกแบบ Virtual Machine, Kubernetes Allocation, และ Cluster Management ล้วนๆ ระดับวิศวกรระบบ (System Engineer) ครับ
+
+นำเนื้อหาส่วนนี้ไปต่อท้ายหัวข้อ Server Management ได้เลยครับ:
+
+#### 💡 การตัดสินใจเชิงวิศวกรรมสถาปัตยกรรม (Architectural Justifications)
+
+ในการออกแบบสถาปัตยกรรมระดับเซิร์ฟเวอร์ โครงการ MotherNest ได้ตัดสินใจเชิงวิศวกรรมเพื่อเพิ่มขีดความสามารถในการจัดการทรัพยากร (Resource Management) และแยกส่วนความเสียหาย (Fault Isolation) ดังนี้:
+
+1\. ทำไมจึงใช้ Proxmox Cluster แทนการลง Kubernetes บน Bare-Metal โดยตรง?
+
+* เหตุผล: แม้การติดตั้ง Kubernetes ลงบนเซิร์ฟเวอร์ทางกายภาพ (Bare-Metal K8s) จะให้ประสิทธิภาพ (Overhead) ที่ดีที่สุด แต่โครงการต้องการความยืดหยุ่นในการจัดสรรทรัพยากรฮาร์ดแวร์แบบรวมศูนย์
+* ผลลัพธ์: การมี Proxmox VE เป็น Hypervisor คั่นกลาง ช่วยให้สามารถทำ Live Migration ย้าย VM ข้าม Physical Server ได้ทันทีเมื่อเครื่องใดเครื่องหนึ่งต้องปิดซ่อมบำรุง ทำให้แอปพลิเคชันและฐานข้อมูลด้านบนทำงานได้อย่างต่อเนื่องโดยไม่มี Downtime (Zero-Downtime Hardware Maintenance)
+
+2\. การแยกระบบฐานข้อมูล (PostgreSQL) ออกจาก Kubernetes Cluster
+
+* เหตุผล: แม้ Kubernetes จะสามารถรัน Stateful Workload อย่างฐานข้อมูลได้ แต่สถาปัตยกรรมของโครงการมีระบบ AI (Vector Search) ที่ต้องการประสิทธิการอ่าน/เขียน (I/O Performance) และหน่วยความจำ (RAM) ที่สูงและเสถียร
+* ผลลัพธ์: โครงการจึงตัดสินใจแยก VM สำหรับ PostgreSQL Primary และ Replica ออกมาติดตั้งแบบ Standalone (VM-based) เพื่อป้องกันปัญหา Noisy Neighbor (การถูกแอปพลิเคชันอื่นใน K8s แย่งทรัพยากร) ทำให้ฐานข้อมูลทางการแพทย์สามารถรีดประสิทธิภาพของ CPU/RAM ที่จัดสรรไว้ได้อย่างเต็มที่ 100%
+
+3\. การแยกส่วนระบบสนับสนุนโครงสร้างพื้นฐาน (Core Infrastructure Isolation)
+
+* เหตุผล: ระบบเครือข่ายและการยืนยันตัวตนถือเป็นหัวใจสำคัญ หากเกิดเหตุการณ์ที่ Kubernetes Cluster ล่ม (Crash) ผู้ดูแลระบบต้องยังคงสามารถเข้าถึงและแก้ไขระบบผ่านบัญชีผู้ใช้ส่วนกลางได้
+* ผลลัพธ์: การแยก VM เฉพาะกิจสำหรับระบบ Active Directory (AD), NTP Server, และ Zabbix Monitoring ออกจากกลุ่ม Application Workload ช่วยรับประกันว่าระบบระบุตัวตนและระบบเฝ้าระวังจะยังคงทำงานอยู่เสมอ ไม่ว่าระบบแอปพลิเคชันหลักจะอยู่ในสถานะใดก็ตาม (Fault Domain Separation)
+
+4\. กลยุทธ์การสำรองข้อมูลระดับเซิร์ฟเวอร์เสมือน (Hypervisor-Level Backup)
+
+* เหตุผล: การสำรองข้อมูลเฉพาะระดับแอปพลิเคชัน (Application-level Backup) อาจใช้เวลานานในการกู้คืน (Recovery Time Objective: RTO) หากระบบปฏิบัติการหลักเกิดความเสียหายหรือถูกโจมตี
+* ผลลัพธ์: การใช้ Proxmox Backup Server (PBS) ทำการ Snapshot และสำรองข้อมูล VM ทั้งก้อนอย่างสม่ำเสมอ ช่วยให้ทีมวิศวกรสามารถกด Restore ทั้งระบบ (รวมถึง OS, Network Config, และ Data) กลับมาใช้งานได้ภายในเวลาไม่กี่นาที ช่วยลดความเสี่ยงทางธุรกิจได้อย่างมีนัยสำคัญ
 
 ## Physical Servers
 
@@ -29,7 +85,6 @@ icon: gear
 | ----------------------- | -------------------------------------------------------------- | -------------- | ------------ | --------------------------- |
 | Authentication Service  | จัดการระบบ Login, ออก JWT Token และตรวจสอบสิทธิ์ (RBAC)        | 0.5 - 1.0      | 0.5 - 1.0    | Kubernetes Deployment (HPA) |
 | Sensitive Data Service  | ประมวลผลและเข้ารหัสข้อมูลสุขภาพ (Medical Data) ตามมาตรฐาน PDPA | 1.0 - 1.5      | 1.0 - 2.0    | Kubernetes Deployment       |
-| Recommendation Service  | คำนวณลำดับบทความและเนื้อหาเฉพาะบุคคล (Personalized Content)    | 1.5 - 2.0      | 2.0 - 4.0    | Kubernetes Deployment (HPA) |
 | AI Inference Service    | รันโมเดลภาษาขนาดเล็ก (SLM) และประมวลผลเวกเตอร์ (SBERT/MLP)     | 2.0 - 4.0      | 4.0 - 8.0    | Kubernetes Deployment (VPA) |
 | RAG Ingestion Service   | ทำ Data Pipeline หั่นข้อความ (Chunking) และสร้าง Vector Index  | 1.0 - 2.0      | 2.0 - 4.0    | Kubernetes Job / CronJob    |
 | Data Processing Service | ทำความสะอาดและจัดระเบียบข้อมูล (ETL) ก่อนบันทึกลงฐานข้อมูล     | 1.0 - 1.5      | 1.0 - 2.0    | Kubernetes Deployment       |
