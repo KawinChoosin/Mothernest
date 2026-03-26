@@ -52,6 +52,4 @@
 
 ## MINUTE MEETING
 
-***
-
 * [Minute Meeting](minute-meeting-1.md)
