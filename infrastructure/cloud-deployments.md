@@ -6,11 +6,11 @@ icon: cloud
 
 #### Simplified
 
-<figure><img src="../.gitbook/assets/cloud.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/cloud (1).png" alt=""><figcaption></figcaption></figure>
 
 #### Full
 
-<figure><img src="../.gitbook/assets/cloudfull (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/cloudfull (2).png" alt=""><figcaption></figcaption></figure>
 
 โครงการ MotherNest เลือกใช้ Google Cloud Platform (GCP) เป็นผู้ให้บริการคลาวด์หลักสำหรับรองรับการประมวลผลแอปพลิเคชัน, ระบบปัญญาประดิษฐ์ (AI & MLOps), และการป้องกันความปลอดภัยเครือข่ายด่านหน้า สถาปัตยกรรมถูกออกแบบภายใต้แนวคิด Serverless-First และ Managed Services เพื่อลดภาระการดูแลระบบ (Operational Overhead) และสามารถขยายตัวอัตโนมัติ (Auto-scaling) เพื่อรองรับเป้าหมายผู้ใช้งาน 1,000 DAU
 
