@@ -6,7 +6,13 @@ icon: cloud
 
 ## Cloud provider and Services
 
+#### Simplified
+
 <figure><img src="../.gitbook/assets/diagram-export-3-25-2026-11_38_26-PM (1).png" alt=""><figcaption></figcaption></figure>
+
+#### Full
+
+<figure><img src="../.gitbook/assets/cloudfull.png" alt=""><figcaption></figcaption></figure>
 
 ### Provider: Google Cloud Platform
 
@@ -79,7 +85,7 @@ icon: cloud
 จุดเริ่มต้นของการรวบรวมและทำความสะอาดข้อมูล เพื่อเตรียมพร้อมสำหรับการสอนโมเดล
 
 * แหล่งที่มาข้อมูล:
-  * Cloud Storage: จัดเก็บข้อมูลทั่วไป เช่น เนื้อหาบทความ , หมวดหมู่ และอายุครรภ์ที่เหมาะสมของบทความ&#x20;
+  * Cloud Storage: จัดเก็บข้อมูลทั่วไป เช่น เนื้อหาบทความ , หมวดหมู่ และอายุครรภ์ที่เหมาะสมของบทความ
   * Secure Data Center (On-premise): จัดเก็บข้อมูลสุขภาพที่ละเอียดอ่อน เช่น อายุครรภ์จริง และประวัติการอ่าน ข้อมูลส่วนนี้จะถูกส่งผ่านช่องทางที่ปลอดภัย (Fortinet FortiGate และ HA VPN IPSec Tunnel) เท่านั้น
 * Preprocessing: ข้อมูลทั้งหมดจะถูกส่งมาพักไว้ที่ Cloud Firestore ก่อนที่ Cloud Run Jobs จะเริ่มทำงาน
   * Data Cleaning: ทำความสะอาดและจัดรูปแบบข้อมูลดิบ
@@ -92,7 +98,7 @@ icon: cloud
 * Item Representation:
   * SBERT Embedding Job: แปลงเนื้อหาบทความ หมวดหมู่ และ อายุครรภ์ที่เหมาะสมของบทความ ให้เป็นชุดตัวเลข (Embedding Vector)
   * MLP Item Tower: รับค่าที่ได้มาบีบอัดขนาดลงจนได้เป็น `item_vector` ซึ่งเป็นตัวแทนความหมายของบทความแต่ละชิ้น
-* User Representation:  MLP User Tower: นำ อายุครรภ์จริง และประวัติการอ่านมาแปลงเป็น `user_vector` ของผู้ใช้แต่ละคน
+* User Representation: MLP User Tower: นำ อายุครรภ์จริง และประวัติการอ่านมาแปลงเป็น `user_vector` ของผู้ใช้แต่ละคน
 * BCE Joint Training: นำ `item_vector` และ `user_vector` มาจับคู่กันเพื่อคำนวณคะแนน (Dot Product) แล้วเทียบกับประวัติการคลิกจริงด้วย BCE Loss เพื่อสอนให้โมเดลรู้ว่า บทความแบบไหนที่ผู้ใช้คนนี้มีแนวโน้มจะสนใจ
 * Model Registration: ตัวชี้วัดความแม่นยำ (เช่น Loss, AUC-ROC) จะถูกบันทึกเพื่อวัดผล และตัวโมเดลจะถูกจัดเก็บเวอร์ชันไว้ที่ Vertex AI Model Registry (รองรับการ Rollback หากจำเป็น)
   * `item_vectors` ทั้งหมดของระบบจะถูกทำดัชนีส่งเข้าไปเก็บที่ Vertex AI Vector Search เพื่อเตรียมพร้อมสำหรับการค้นหา
@@ -114,7 +120,7 @@ icon: cloud
 * Drift Detection: ระบบ Cloud Monitoring จะคอยตรวจสอบความแม่นยำของโมเดล หากพบว่าพฤติกรรมผู้ใช้เปลี่ยนไปจนเกินเกณฑ์ที่กำหนด (Data Drift) ระบบจะส่งการแจ้งเตือน
 * Auto-Retraining: เมื่อถึงรอบเวลาที่กำหนด หรือได้รับการแจ้งเตือน Drift Cloud Scheduler จะกระตุ้น (Trigger) ให้ระบบดึงข้อมูลพฤติกรรมชุดใหม่ล่าสุดเข้าสู่กระบวนการ ML Pipeline อีกครั้ง ทำให้ Recommendation Feed แม่นยำและอัปเดตอยู่เสมอ
 
-### 2. AI Chatbot&#x20;
+### 2. AI Chatbot
 
 <figure><img src="../.gitbook/assets/ai chatbot (1).png" alt=""><figcaption></figcaption></figure>
 
@@ -129,7 +135,7 @@ icon: cloud
   * Secure Data Center (On-premise): จัดเก็บข้อมูลส่วนบุคคลของผู้ใช้งาน (เช่น อายุครรภ์ ประวัติสุขภาพ) ซึ่งจะถูกส่งผ่านช่องทางที่ปลอดภัย (VPN) เสมอ
 * Indexing Processing: ข้อมูลจะถูกนำมาเข้ากระบวนการจัดการผ่าน Cloud Run Jobs
   * Chunking Job: ตัดแบ่งเอกสารที่มีความยาวออกเป็นส่วนย่อยๆ (ประมาณ 300-500 Tokens ต่อท่อน) โดยให้เนื้อหามีการเหลื่อมซ้อนกันเล็กน้อย (Overlap) เพื่อรักษาใจความสำคัญไม่ให้ขาดหายระหว่างท่อน
-  * Embedding Job: แปลงข้อความแต่ละท่อนที่ตัดแล้วให้เป็นชุดตัวเลข (Vector) และนำไปบันทึก (Upsert) ลงใน Cloud SQL&#x20;
+  * Embedding Job: แปลงข้อความแต่ละท่อนที่ตัดแล้วให้เป็นชุดตัวเลข (Vector) และนำไปบันทึก (Upsert) ลงใน Cloud SQL
 
 #### 2. ML Pipeline (กระบวนการควบคุมคุณภาพและจัดการคำสั่ง)
 
@@ -138,7 +144,7 @@ icon: cloud
 * Retrieval Validation:
   * Retrieval QA Test: ทดสอบระบบด้วยชุดคำถามตัวอย่าง เพื่อตรวจสอบว่าระบบสามารถดึงข้อมูลส่วนย่อย (Chunks) ที่ถูกต้องและเกี่ยวข้องกลับมาได้จริงหรือไม่ (หากระบบดึงข้อมูลผิด คำตอบของ AI ก็จะผิดพลาดตามไปด้วย)
 * Prompt Management:
-  * Prompt Template Versioning: ควบคุมและจัดการเวอร์ชันของ System Prompt ที่ใช้กำหนดบทบาทและข้อจำกัดของ AI&#x20;
+  * Prompt Template Versioning: ควบคุมและจัดการเวอร์ชันของ System Prompt ที่ใช้กำหนดบทบาทและข้อจำกัดของ AI
   * Prompt Registry: จัดเก็บเวอร์ชันของ Prompt ไว้ใน Cloud Storage อย่างเป็นระบบ เพื่อรองรับการย้อนกลับ (Rollback) ไปใช้ Prompt เดิมในกรณีที่เวอร์ชันใหม่ให้ผลลัพธ์ที่ไม่ดีพอ
 
 #### 3. Deployment Pipeline (กระบวนการประมวลผลและตอบคำถาม)
