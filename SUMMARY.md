@@ -21,6 +21,7 @@
   * [Server and Storage Equipment](infrastructure/private-data-center-design/server-and-storage-equipment.md)
   * [Server Management](infrastructure/private-data-center-design/server-management.md)
 * [Cloud Deployments](infrastructure/cloud-deployments.md)
+* [CI/CD and DevSecOps](infrastructure/ci-cd-and-devsecops.md)
 
 ## NETWORK
 
