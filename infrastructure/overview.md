@@ -44,3 +44,11 @@ icon: file-lines
 {% content-ref url="cloud-deployments.md" %}
 [cloud-deployments.md](cloud-deployments.md)
 {% endcontent-ref %}
+
+{% content-ref url="mlops-architecture.md" %}
+[mlops-architecture.md](mlops-architecture.md)
+{% endcontent-ref %}
+
+{% content-ref url="ci-cd-and-devsecops.md" %}
+[ci-cd-and-devsecops.md](ci-cd-and-devsecops.md)
+{% endcontent-ref %}
