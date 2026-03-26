@@ -4,8 +4,6 @@ icon: gear
 
 # Server Management
 
-## Server
-
 #### Simplified Diagram
 
 <figure><img src="../../.gitbook/assets/diagram-export-3-25-2026-11_38_26-PM.png" alt=""><figcaption></figcaption></figure>
@@ -13,6 +11,8 @@ icon: gear
 #### Full Diagram
 
 <figure><img src="../../.gitbook/assets/diagram-export-3-26-2026-12_06_28-AM.png" alt=""><figcaption></figcaption></figure>
+
+## Physical Servers
 
 | Type                                         | CPU                                         | Storage                                                                               | Operating System | Software                       |
 | -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------- | ------------------------------ |
