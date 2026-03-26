@@ -22,6 +22,7 @@
   * [Server Management](infrastructure/private-data-center-design/server-management.md)
   * [Data Center Facility & Operations Management](infrastructure/private-data-center-design/data-center-facility-and-operations-management.md)
 * [Cloud Deployments](infrastructure/cloud-deployments.md)
+* [MLOps Architecture](infrastructure/mlops-architecture.md)
 * [CI/CD and DevSecOps](infrastructure/ci-cd-and-devsecops.md)
 
 ## NETWORK
