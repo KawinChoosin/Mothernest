@@ -4,8 +4,6 @@ icon: cloud
 
 # Cloud Deployments
 
-## Cloud provider and Services
-
 #### Simplified
 
 <figure><img src="../.gitbook/assets/diagram-export-3-25-2026-11_38_26-PM (1).png" alt=""><figcaption></figcaption></figure>
@@ -13,6 +11,10 @@ icon: cloud
 #### Full
 
 <figure><img src="../.gitbook/assets/cloudfull.png" alt=""><figcaption></figcaption></figure>
+
+โครงการ MotherNest เลือกใช้ Google Cloud Platform (GCP) เป็นผู้ให้บริการคลาวด์หลักสำหรับรองรับการประมวลผลแอปพลิเคชัน, ระบบปัญญาประดิษฐ์ (AI & MLOps), และการป้องกันความปลอดภัยเครือข่ายด่านหน้า สถาปัตยกรรมถูกออกแบบภายใต้แนวคิด Serverless-First และ Managed Services เพื่อลดภาระการดูแลระบบ (Operational Overhead) และสามารถขยายตัวอัตโนมัติ (Auto-scaling) เพื่อรองรับเป้าหมายผู้ใช้งาน 1,000 DAU
+
+งบประมาณคลาวด์รายเดือนถูกประเมินไว้ที่ประมาณ \~$360 - $370 USD ต่อเดือน (ประมาณ 12,000 - 13,000 บาท) ซึ่งถือเป็นตัวเลขที่คุ้มค่าและได้รับการปรับแต่ง (Cost-Optimized) อย่างเหมาะสมสำหรับระบบ Health-Tech ระดับ Enterprise ที่มีทั้งโครงสร้าง RAG Pipeline และ Two-Tower Recommendation Engine ทำงานอยู่เบื้องหลัง
 
 ### Provider: Google Cloud Platform
 
@@ -67,3 +69,26 @@ icon: cloud
 | Cloud KMS (CMEK)              | จัดการคีย์สำหรับเข้ารหัสข้อมูล (Encryption Keys)  | Standard (เก็บไม่กี่ Key และใช้งานน้อย) | \~$1.00                         |
 | Cloud Audit Logs              | เก็บบันทึกประวัติการเข้าถึงและการทำงาน (Security) | Standard (ฟรี 50GB แรก/เดือน)           | $0.00 (Free Tier)               |
 
+#### 💡 Architectural Justifications
+
+เพื่อให้การลงทุนบน Google Cloud Platform เกิดความคุ้มค่าสูงสุดและสอดคล้องกับเป้าหมายทางธุรกิจ โครงการได้มีเหตุผลรองรับการตัดสินใจเลือกใช้บริการในแต่ละเลเยอร์ดังนี้:
+
+1\. กลยุทธ์ Serverless-First เพื่อควบคุมต้นทุน (Compute & CI/CD Layer)
+
+* เหตุผล: โครงการเลือกใช้ Cloud Run สำหรับการรัน Backend API, RAG Orchestrator, และ RecSys Engine แทนการเปิด Virtual Machine (GCE) หรือ Kubernetes (GKE) ทิ้งไว้บนคลาวด์
+* ผลลัพธ์: สถาปัตยกรรม Serverless อนุญาตให้ระบบสามารถ "Scale-to-Zero" ได้เมื่อไม่มีผู้ใช้งาน (เช่น ช่วงกลางคืน) ทำให้เสียค่าใช้จ่ายเฉพาะวินาทีที่มีการประมวลผลจริงเท่านั้น (Pay-per-use) ประเมินค่าใช้จ่ายเพียง \~$10/เดือน แต่ยังคงความสามารถในการรองรับ Traffic Spikes ได้ทันที
+
+2\. การกระจายศูนย์ข้อมูลแบบ Polyglot Persistence (Data Layer)
+
+* เหตุผล: ไม่มีฐานข้อมูลใดที่เหมาะสมกับทุกงาน (No silver bullet) หากเก็บข้อมูลทุกอย่างลง Cloud SQL จะทำให้ระบบช้าและมีค่าใช้จ่ายสูง
+* ผลลัพธ์: โครงการจึงเลือกใช้กลยุทธ์ Polyglot Persistence โดยใช้ Cloud SQL สำหรับข้อมูลเชิงสัมพันธ์/Vector, ใช้ Firestore สำหรับข้อมูลกึ่งโครงสร้าง (Chat/Profile) ที่ต้องการความเร็ว, ใช้ Redis สำหรับทำ Semantic Cache ลดการเรียก API ซ้ำซ้อน, และใช้ BigQuery เป็น Data Warehouse สำหรับงาน MLOps ซึ่งการกระจายงานนี้ช่วยลดปัญหาคอขวด (Bottleneck) และใช้ Free Tier ของแต่ละบริการได้อย่างคุ้มค่า
+
+3\. การลงทุนที่จำเป็นใน Vertex AI Vector Search (AI & MLOps Layer)
+
+* เหตุผล: ค่าใช้จ่ายที่สูงที่สุดในสถาปัตยกรรมนี้คือ Vertex AI Vector Search (\~$150/เดือน) ซึ่งอาจดูเป็นสัดส่วนที่สูง แต่มีความจำเป็นอย่างยิ่งสำหรับโครงสร้างพื้นฐานระดับองค์กร
+* ผลลัพธ์: ระบบ RAG ทางการแพทย์และระบบแนะนำบทความ (Feed Recommendation) จำเป็นต้องใช้การค้นหาแบบ Approximate Nearest Neighbor (ANN) ที่มีความแม่นยำและความหน่วงต่ำระดับมิลลิวินาที การใช้ Managed Vector Search ของ GCP ช่วยรับประกันความเสถียร (SLA) และความเร็วในการดึง Medical Context ซึ่งหากให้วิศวกรสร้างและดูแล Vector Engine เองบนเซิร์ฟเวอร์ จะมีค่าใช้จ่ายแฝง (Hidden Costs) และความเสี่ยงเรื่องระบบล่มที่สูงกว่าค่าบริการ $150 นี้มาก
+
+4\. ความปลอดภัยและการปกป้องข้อมูลระดับ Enterprise (Security & Connectivity Layer)
+
+* เหตุผล: แอปพลิเคชันที่เกี่ยวกับคุณแม่ตั้งครรภ์คือเป้าหมายที่มีมูลค่าสูงสำหรับแฮกเกอร์
+* ผลลัพธ์: การวาง Cloud Load Balancing คู่กับ Cloud Armor (WAF) ไว้ที่ด่านหน้า ช่วยป้องกันการโจมตีแบบ DDoS และ SQL Injection ก่อนที่ทราฟฟิกจะเข้าถึง Cloud Run การใช้ Secret Manager และ Cloud KMS รับประกันว่า API Keys จะถูกเข้ารหัส (CMEK) และไม่มีการ Hardcode ไว้ในซอร์สโค้ด นอกจากนี้ การลงทุนใน HA VPN (\~$72/เดือน) เพื่อเชื่อมต่อกับ On-Premise แบบ 2 Tunnels ถือเป็นการปฏิบัติตามข้อกำหนดการส่งผ่านข้อมูลสุขภาพอย่างเคร่งครัด
