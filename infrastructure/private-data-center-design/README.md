@@ -11,3 +11,8 @@ icon: server
 {% content-ref url="server-management.md" %}
 [server-management.md](server-management.md)
 {% endcontent-ref %}
+
+{% content-ref url="data-center-facility-and-operations-management.md" %}
+[data-center-facility-and-operations-management.md](data-center-facility-and-operations-management.md)
+{% endcontent-ref %}
+
