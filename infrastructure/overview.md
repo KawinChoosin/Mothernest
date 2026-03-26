@@ -27,15 +27,15 @@ icon: file-lines
 
 #### 🔵 Simplified Version
 
-<figure><img src="../.gitbook/assets/diagram-export-3-26-2026-10_44_54-PM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_10_04-AM.png" alt=""><figcaption></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/diagram-export-3-26-2026-11_12_04-PM (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_10_20-AM.png" alt=""><figcaption></figcaption></figure>
 
 #### 🟢 Full Version
 
-<figure><img src="../.gitbook/assets/diagram-export-3-26-2026-10_59_55-PM (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_14_53-AM.png" alt=""><figcaption></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/diagram-export-3-26-2026-11_12_30-PM (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_02_07-AM.png" alt=""><figcaption></figcaption></figure>
 
 {% content-ref url="private-data-center-design/" %}
 [private-data-center-design](private-data-center-design/)
