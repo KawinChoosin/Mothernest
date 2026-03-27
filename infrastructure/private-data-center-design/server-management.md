@@ -10,7 +10,7 @@ icon: gear
 
 #### Full Diagram
 
-<figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-1_44_31-PM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-1_44_31-PM (1).png" alt=""><figcaption></figcaption></figure>
 
 #### Server Management & Virtualization Cluster
 

@@ -33,9 +33,9 @@ icon: file-lines
 
 #### Full Version
 
-<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_14_53-AM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-1_44_31-PM.png" alt=""><figcaption></figcaption></figure>
 
-<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_02_07-AM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-1_44_37-PM.png" alt=""><figcaption></figcaption></figure>
 
 {% content-ref url="private-data-center-design/" %}
 [private-data-center-design](private-data-center-design/)
