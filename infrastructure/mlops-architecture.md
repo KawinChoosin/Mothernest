@@ -6,86 +6,78 @@ icon: head-side-gear
 
 ## 1. AI Recommendation System
 
-<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-2_39_08-PM (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-4_32_01-PM.png" alt=""><figcaption></figcaption></figure>
 
-### Two-Tower Model Pipeline in Hybrid Cloud
+Two-Tower Model Pipeline in Hybrid Cloud
 
 ระบบแนะนำบทความสำหรับคุณแม่ตั้งครรภ์ (Personalized Feed) ในแอปพลิเคชัน MotherNest ถูกออกแบบด้วยสถาปัตยกรรม Two-Tower Deep Learning ภายใต้สภาพแวดล้อมแบบ Hybrid Cloud เพื่อรักษาความปลอดภัยของข้อมูลส่วนบุคคลขั้นสูงสุด (Data Privacy) ในขณะที่ยังคงความสามารถในการสเกล (Scalability) และมีความหน่วงต่ำ (Low Latency) โครงสร้างสถาปัตยกรรมแบ่งออกเป็น 5 โซนหลัก ดังนี้:
 
-### 1. องค์ประกอบของสถาปัตยกรรม (System Components by Zone)
+#### 1. องค์ประกอบของสถาปัตยกรรม (System Components by Zone)
 
 สถาปัตยกรรมถูกแบ่งออกเป็น 5 โซนหลัก เพื่อแยกหน้าที่ความรับผิดชอบ (Separation of Concerns) และรักษาความปลอดภัยของข้อมูลสุขภาพตามมาตรฐาน PDPA:
 
-#### 🛡️ ZONE 0: Secure Datacenter (ศูนย์ข้อมูลความปลอดภัยสูง)
+🛡️ ZONE 0: Secure Datacenter (ศูนย์ข้อมูลความปลอดภัยสูง)
 
-บทบาท: แหล่งจัดเก็บข้อมูลหลัก (Source of Truth) ที่เน้นความปลอดภัยสูงสุด
-
+* บทบาท: แหล่งจัดเก็บข้อมูลหลัก (Source of Truth) ที่เน้นความปลอดภัยสูงสุด
 * PostgreSQL 16 Cluster: จัดเก็บข้อมูลที่มีความอ่อนไหวสูง เช่น อายุครรภ์ (Gestational Age) และประวัติสุขภาพส่วนบุคคล
 * Enterprise Security: ปกป้องด้วย Fortinet FortiGate (Active-Passive HA) และเชื่อมต่อกับ Google Cloud ผ่านอุโมงค์เข้ารหัส HA VPN (IPsec Tunnel) ตลอด 24 ชั่วโมง
 
-#### 📊 ZONE 1: Data Pipeline & Feature Store (การจัดการข้อมูล)
+📊 ZONE 1: Data Pipeline & Feature Store (การจัดการข้อมูล)
 
-บทบาท: เตรียมข้อมูลและจัดทำคลังฟีเจอร์สำหรับ AI
-
+* บทบาท: เตรียมข้อมูลและจัดทำคลังฟีเจอร์สำหรับ AI
 * Cloud Storage: พื้นที่จัดเก็บไฟล์บทความดิบ (Raw Articles) และคลังความรู้ทางการแพทย์
 * BigQuery (Feature Store): ทำหน้าที่เป็นคลังฟีเจอร์และ Label Store (สถิติการคลิก) เพื่อใช้ในการฝึกสอนโมเดล
 * Firestore (Profile Cache): แคชข้อมูลโปรไฟล์คุณแม่แบบ Real-time เพื่อลดภาระการดึงข้อมูลจาก On-Premise ในขณะใช้งาน
 
-#### 🧠 ZONE 2: MLOps & Offline Pipeline (การฝึกสอนโมเดล)
+🧠 ZONE 2: MLOps & Offline Pipeline (การฝึกสอนโมเดล)
 
-บทบาท: กระบวนการสร้างและจัดเก็บโมเดลปัญญาประดิษฐ์แบบอัตโนมัติ
-
+* บทบาท: กระบวนการสร้างและจัดเก็บโมเดลปัญญาประดิษฐ์แบบอัตโนมัติ
 * Vertex AI Training: ใช้ฝึกสอนโมเดล Two-Tower Neural Network แบบคู่ขนาน (Joint Training)
 * Vertex Model Registry: ระบบจัดการเวอร์ชันของโมเดลที่ฝึกสำเร็จแล้ว
-* Vertex AI Vector Search: คลังเก็บเวกเตอร์ของบทความ (Item Vector Pool) เพื่อรองรับการค้นหาบทความที่ใกล้เคียงกับความสนใจในระดับมิลลิวินาที
+* Item Tower Batch & Vector Search: นำข้อความมาวิเคราะห์ด้วยอัลกอริทึม SBERT เพื่อแปลงเป็น Item Vector และจัดเก็บลง Vertex AI Vector Search เพื่อรองรับการค้นหาระดับมิลลิวินาที
 
-#### 🚀 ZONE 3: Online Serving Pipeline (การให้บริการเรียลไทม์)
+🚀 ZONE 3: Online Serving Pipeline (การให้บริการเรียลไทม์)
 
-บทบาท: ด่านหน้าในการรับทราฟฟิกและประมวลผลหน้าฟีดบทความ
-
+* บทบาท: ด่านหน้าในการรับทราฟฟิกและประมวลผลหน้าฟีดบทความ
 * Global Load Balancer & Cloud Armor: ป้องกันภัยคุกคามระดับเครือข่าย (DDoS/WAF) และกระจายโหลดผู้ใช้งาน
 * API Gateway: ตรวจสอบสิทธิ์เข้าใช้งาน (JWT Auth) และควบคุมโควต้าการเรียกใช้ AI (Rate Limiting) ตามรายบุคคล
-* RecSys Engine (Cloud Run): ประมวลผลการจัดอันดับบทความแบบ Modular Monolith โดยดึงข้อมูลจาก Profile Cache และ Vector Search มาคำนวณหาบทความที่ "ตรงใจและปลอดภัย" ที่สุด
+* RecSys Engine (Cloud Run): ประมวลผลการจัดอันดับบทความแบบ Modular Monolith โดยดึงข้อมูลจาก Profile Cache และ Vector Search มาคำนวณหาบทความที่เหมาะสมที่สุด พร้อมระบบ In-Memory Feed Cache (Local RAM) เพื่อประหยัดทรัพยากรการประมวลผลซ้ำ
 
-#### 📈 ZONE 4: Monitoring & Feedback (การติดตามและพัฒนา)
+📈 ZONE 4: Monitoring & Feedback (การติดตามและพัฒนา)
 
-บทบาท: ตรวจสอบประสิทธิภาพและจุดชนวนการพัฒนาโมเดลให้ฉลาดขึ้น
-
+* บทบาท: ตรวจสอบประสิทธิภาพและจุดชนวนการพัฒนาโมเดลให้ฉลาดขึ้น
 * Event Tracker (Audit Logs): บันทึกพฤติกรรมคุณแม่ (คลิกอ่าน = 1, เลื่อนผ่าน = 0) เพื่อนำไปเป็น Feedback Loop
 * Cloud Scheduler: ระบบตั้งเวลาอัตโนมัติเพื่อสั่ง Retraining โมเดลทุกสัปดาห์ เพื่อให้ AI เท่าทันต่อเทรนด์ความสนใจใหม่ๆ
-
-***
 
 #### 2. การไหลของข้อมูลและกระบวนการทำงาน (Data Flow & Operational Steps)
 
 กระบวนการทำงานของระบบถูกแบ่งออกเป็น 4 เฟสหลัก เพื่อแยกภาระงาน (Decoupling) ระหว่างส่วนที่ต้องการความเร็วแบบเรียลไทม์ และส่วนที่ประมวลผลแบบเบื้องหลัง:
 
-Phase 1: การเตรียมข้อมูลและการซิงโครไนซ์ (Data Prep & Sync)
-
-ระบบทำงานแบบ Batch Processing โดยดึงข้อมูลอายุครรภ์และประวัติการอ่านจาก On-Premise ผ่าน VPN มาพักไว้ที่ Firestore (Profile Cache) เพื่อให้ระบบออนไลน์สืบค้นได้รวดเร็วโดยไม่ต้องรอ Network Latency จาก VPN และส่งข้อมูลบทความที่ทำความสะอาดแล้วไปเก็บไว้ที่ BigQuery Feature Store
+Phase 1: การเตรียมข้อมูลและการซิงโครไนซ์ (Data Prep & Sync) ระบบทำงานแบบ Batch Processing โดยดึงข้อมูลอายุครรภ์และประวัติการอ่านจาก On-Premise ผ่าน VPN มาพักไว้ที่ Firestore (Profile Cache) เพื่อให้ระบบออนไลน์สืบค้นได้รวดเร็วโดยไม่ต้องรอ Network Latency จาก VPN และส่งข้อมูลบทความที่ทำความสะอาดแล้วไปเก็บไว้ที่ BigQuery Feature Store
 
 Phase 2: การฝึกสอนโมเดลและการสร้างเวกเตอร์ (MLOps & Vector Generation)
 
 * Joint Training: ทุกสัปดาห์ Cloud Scheduler จะสั่งให้ Vertex AI ดึงข้อมูลจาก BigQuery มาสอนโมเดล โดยฝึกสอน User Tower (วิเคราะห์อายุครรภ์และประวัติการอ่าน) และ Item Tower (วิเคราะห์เนื้อหาด้วย SBERT และหมวดหมู่บทความ) ไปพร้อมๆ กัน โดยปรับน้ำหนักโมเดลผ่านฟังก์ชัน BCE Loss (Binary Cross-Entropy) เทียบกับพฤติกรรมการคลิกจริงของผู้ใช้
 * Vector Pool Update: โมเดล Item Tower ที่สมบูรณ์จะถูกโหลดไปสร้าง Item Vector สำหรับบทความทั้งหมด และบันทึกลง Vertex AI Vector Search เพื่อรอการถูกสืบค้น
 
-Phase 3: การให้บริการจัดอันดับบทความแบบเรียลไทม์ (Real-Time Serving) เมื่อผู้ใช้งานร้องขอหน้า Feed ข้อมูลจะวิ่งผ่าน Global Load Balancer เข้าสู่ RecSys Engine ซึ่งจะทำงาน 3 ขั้นตอนต่อเนื่องในระดับหน่วยความจำ (In-memory Flow):
+Phase 3: การให้บริการจัดอันดับบทความแบบเรียลไทม์ (Real-Time Serving) เมื่อ Cloud Run ถูกปลุกการทำงาน ระบบจะโหลดโมเดลเตรียมไว้ในหน่วยความจำล่วงหน้า (Cold Start Initialization) และเมื่อผู้ใช้งานร้องขอหน้า Feed ข้อมูลจะวิ่งผ่าน Load Balancer และ API Gateway เข้าสู่ RecSys Engine ซึ่งจะทำงานต่อเนื่องในระดับหน่วยความจำ (In-memory Flow) ดังนี้:
 
-1. User Vector Inference: ดึงข้อมูลจาก Profile Cache มาเข้าโมเดล User Tower เพื่อแปลงความสนใจของผู้ใช้ออกมาเป็นเวกเตอร์
-2. Hybrid Scoring: นำ User Vector ไปยิงคำสั่งค้นหา (ANN Query) ใน Vector Search เพื่อหาบทความที่มีค่า Semantic Score สูงสุด นำมาเข้าสมการคณิตศาสตร์ (Weighted Sum) รวมกับ Stage Score (ความสอดคล้องกับอายุครรภ์ ณ ปัจจุบัน) เพื่อให้ได้คะแนนความเหมาะสมขั้นสุดท้าย
-3. Read Article Filter: กรองบทความที่ผู้ใช้เคยอ่านไปแล้วออก ก่อนส่งผลลัพธ์ (Ranked Feed) กลับไปแสดงผลบนแอปพลิเคชัน
+1. Cache Verification: ตรวจสอบ Local RAM หากพบฟีดที่คำนวณไว้แล้วจะส่งคืนทันที (ลดค่าใช้จ่าย API)
+2. User Vector Inference: ดึงข้อมูลจาก Profile Cache มาเข้าโมเดล User Tower เพื่อแปลงความสนใจของผู้ใช้ออกมาเป็นเวกเตอร์
+3. Hybrid Scoring: นำ User Vector ไปยิงคำสั่งค้นหา (ANN Query) ใน Vector Search เพื่อหาบทความที่มีค่า Semantic Score สูงสุด จากนั้นนำมาเข้าสมการคณิตศาสตร์ (Weighted Sum + Stage Score) รวมกับความสอดคล้องของอายุครรภ์ปัจจุบัน เพื่อให้ได้คะแนนความเหมาะสมขั้นสุดท้าย
+4. Read Article Filter: กรองบทความที่ผู้ใช้เคยอ่านไปแล้วออก บันทึกผลลัพธ์ลง Local Cache และส่ง Ranked Feed กลับไปแสดงผลบนแอปพลิเคชัน
 
-Phase 4: วงจรเรียนรู้อย่างต่อเนื่อง (The Feedback Loop)
+Phase 4: วงจรเรียนรู้อย่างต่อเนื่อง (The Feedback Loop) ทุกเหตุการณ์การคลิก (Click Events) จะถูกบันทึกผ่าน Event Tracker และส่งไปเก็บสะสมใน BigQuery เพื่อทำหน้าที่เป็น Ground Truth (Labels) สำหรับรอบการฝึกสอนโมเดลในสัปดาห์ถัดไป ทำให้ AI ฉลาดขึ้นและเข้าใจเทรนด์ความสนใจของคุณแม่ที่เปลี่ยนไปตามกาลเวลา
 
-ทุกเหตุการณ์การคลิก (Click Events) จะถูกบันทึกผ่าน Event Tracker และส่งไปเก็บสะสมใน BigQuery เพื่อทำหน้าที่เป็น Ground Truth (Labels) สำหรับรอบการฝึกสอนโมเดลในสัปดาห์ถัดไป ทำให้ AI ฉลาดขึ้นและเข้าใจเทรนด์ความสนใจของคุณแม่ที่เปลี่ยนไปตามกาลเวลา
+#### 💡 Architectural Justifications (เหตุผลการตัดสินใจเชิงวิศวกรรมสถาปัตยกรรม)
 
-#### 💡Architectural Justifications
+เพื่อให้ระบบเหมาะสมกับผู้ใช้งานระดับ 1,000 DAU โครงการได้ตัดสินใจออกแบบทางวิศวกรรมเพื่อความคุ้มค่าและประสิทธิภาพสูงสุด ดังนี้:
 
-เพื่อให้ระบบเหมาะสมกับผู้ใช้งาน 1,000 DAU โครงการได้ตัดสินใจออกแบบทางวิศวกรรมดังนี้:
-
-1. การรวมศูนย์ด้วย Global Load Balancer: ระบบเลือกใช้ Global Load Balancer เป็นประตูด่านหน้า (Front Door) แทน API Gateway ธรรมดา เพื่อบูรณาการระบบความปลอดภัย Cloud Armor (WAF) ปกป้องทั้ง API ทั่วไปและ AI Microservices ไว้ภายใต้มาตรฐานเดียวกัน สอดคล้องกับ Main Architecture ขององค์กร
-2. การออกแบบ RecSys แบบ Modular Monolith: ภายใน RecSys Engine ถูกแบ่งโมดูลลอจิกชัดเจน (Inference, Scoring, Filtering) แต่รันอยู่ใน Cloud Run Instance เดียวกัน การออกแบบนี้ช่วยให้การส่งต่อข้อมูลเวกเตอร์ระหว่างขั้นตอนเป็นไปในลักษณะ In-Memory Execution ขจัดปัญหา HTTP Network Overhead ที่มักพบใน Distributed Microservices ทำให้สามารถส่งมอบหน้า Feed ให้ผู้ใช้งานได้ในหลักมิลลิวินาที (Milliseconds)
-3. BigQuery ในฐานะ ML Feature Store: การใช้ BigQuery เป็นศูนย์กลางรวบรวมข้อมูลทั้งฝั่ง Features (คุณลักษณะบทความและผู้ใช้) และ Labels (ประวัติการคลิก) ช่วยให้การทำ Time-travel Data สำหรับป้อนเข้า Vertex AI Training เป็นไปอย่างมีประสิทธิภาพและถูกต้องตามหลัก MLOps ระดับ Enterprise
+* การประหยัดงบประมาณด้วย In-Memory Local Caching: โครงการเลือกใช้ RAM ภายใน Cloud Run ทำหน้าที่เป็น Feed Cache ชั่วคราว แทนการเช่าบริการ External Cache (เช่น Redis) ช่วยลดต้นทุนโครงสร้างพื้นฐาน (Zero Infrastructure Cost for Caching) ในขณะที่ยังคงรักษาระดับความหน่วงให้ต่ำที่สุดได้
+* การจัดการ Cold Start ด้วย Pre-loaded Model: เพื่อป้องกันปัญหาแอปพลิเคชันค้างขณะรอโหลดโมเดล AI ที่มีขนาดใหญ่ ระบบถูกออกแบบให้ดึงโมเดลมาโหลดรอไว้ในหน่วยความจำตั้งแต่จังหวะเปิดเซิร์ฟเวอร์ (Container Initialization) ทำให้ระบบพร้อมตอบสนองคำสั่งแบบเรียลไทม์
+* การรวมศูนย์ด้วย Global Load Balancer: ระบบเลือกใช้ Global Load Balancer เป็นประตูด่านหน้า (Front Door) เพื่อบูรณาการระบบความปลอดภัย Cloud Armor (WAF) ปกป้องทั้ง API ทั่วไปและ AI Microservices ไว้ภายใต้มาตรฐานเดียวกัน สอดคล้องกับ Main Architecture ขององค์กร
+* การออกแบบ RecSys แบบ Modular Monolith: ภายใน RecSys Engine ถูกแบ่งโมดูลลอจิกชัดเจน (Inference, Scoring, Filtering) แต่รันอยู่ใน Cloud Run Instance เดียวกัน การออกแบบนี้ช่วยให้การส่งต่อข้อมูลเวกเตอร์ระหว่างขั้นตอนเป็นไปในลักษณะ In-Memory Execution ขจัดปัญหา HTTP Network Overhead ที่มักพบใน Distributed Microservices ทำให้สามารถส่งมอบหน้า Feed ให้ผู้ใช้งานได้ในหลักมิลลิวินาที
+* BigQuery ในฐานะ ML Feature Store: การใช้ BigQuery เป็นศูนย์กลางรวบรวมข้อมูลทั้งฝั่ง Features และ Labels ช่วยให้การทำ Time-travel Data สำหรับป้อนเข้า Vertex AI Training เป็นไปอย่างมีประสิทธิภาพและถูกต้องตามหลัก MLOps ระดับ Enterprise
 
 ***
 
