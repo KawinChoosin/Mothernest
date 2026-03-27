@@ -76,6 +76,7 @@ MotherNest เป็นเว็บแอปที่พัฒนาเพื่
 
 **💻 Software Development**
 
+* [Overview](software-developement/overview.md)
 * [Software Requirements](software-developement/software-requirements.md)
 * [Users Flow & User Interface](software-developement/users-flow-and-user-interfaces/)
 * [Database Design](software-developement/database-design.md)
@@ -104,8 +105,8 @@ MotherNest เป็นเว็บแอปที่พัฒนาเพื่
 
 ### 📌 More sections
 
-* [Project Management](/broken/pages/2gSR17kqva5MVW2dzxxD)
-* [Minute Meeting](/broken/pages/xdgOwBK1fngyIzum1Erl)
+* [Project Management](project-management/overview.md)
+* [Minute Meeting](minute-meeting-1.md)
 
 <details>
 
