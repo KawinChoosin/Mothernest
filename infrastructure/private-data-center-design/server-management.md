@@ -10,7 +10,7 @@ icon: gear
 
 #### Full Diagram
 
-<figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-12_14_53-AM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-1_44_31-PM.png" alt=""><figcaption></figcaption></figure>
 
 #### Server Management & Virtualization Cluster
 
@@ -130,7 +130,7 @@ Secure Datacenter ทำหน้าที่เป็นโครงสร้�
 
 #### Full
 
-<figure><img src="../../.gitbook/assets/platformlayer.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/platformfull.png" alt=""><figcaption></figcaption></figure>
 
 #### Virtualization Platform
 
