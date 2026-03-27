@@ -6,7 +6,7 @@ icon: file-lines
 
 แพลตฟอร์ม MotherNest ถูกสร้างขึ้นบนโครงสร้างพื้นฐานที่ทันสมัยและเป็นแบบ Highly Resilient โดยออกแบบมาเพื่อสร้างสมดุลระหว่าง Rapid Scalability และข้อกำหนดด้าน Data Privacy ที่เข้มงวด ระบบนี้ได้ปรับเปลี่ยนจากรูปแบบ Monolithic Architecture มาใช้แนวทาง Distributed Cloud-Native ที่ปรับแต่งมาสำหรับภาระงานสาย Health-tech โดยเฉพาะ
 
-#### 🔴 Design Methodology
+#### 1) Design Methodology
 
 สถาปัตยกรรมโดยรวมถูกออกแบบภายใต้ระเบียบวิธีและแนวคิดหลัก 3 ประการ:
 
@@ -14,7 +14,7 @@ icon: file-lines
 * Microservices Architecture: Application Logic ถูกแยกส่วนออกจากกันเป็น Microservices อิสระในรูปแบบ Container (เช่น Authentication, Recommendation และ AI Inference) โดยใช้ Kubernetes เป็นแพลตฟอร์มในการทำ Orchestration
 * High Availability และ Fault Tolerance: ระบบถูกออกแบบให้มี Redundancy ในทุกเลเยอร์สำคัญของ Network และ Data ซึ่งรวมถึงการตั้งค่า Active-Passive Firewall Cluster, การทำ Proxmox Clustering สำหรับ Hardware Virtualization และการทำ Read-Write Splitting สำหรับฐานข้อมูล PostgreSQL
 
-#### 🟠 Strategic Rationale
+#### 2) Strategic Rationale
 
 โครงสร้างสถาปัตยกรรมนี้ถูกเลือกใช้เพื่อตอบโจทย์ความท้าทายเฉพาะตัวของแอปพลิเคชัน Health-tech สมัยใหม่ ที่ต้องรองรับผู้ใช้งานระดับ 1,000 คนต่อวัน:
 
@@ -25,13 +25,13 @@ icon: file-lines
 
 ### Overall System Diagram
 
-#### 🔵 Simplified Version
+#### Simplified Version
 
 <figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_10_04-AM.png" alt=""><figcaption></figcaption></figure>
 
 <figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_10_20-AM.png" alt=""><figcaption></figcaption></figure>
 
-#### 🟢 Full Version
+#### Full Version
 
 <figure><img src="../.gitbook/assets/diagram-export-3-27-2026-12_14_53-AM.png" alt=""><figcaption></figcaption></figure>
 
