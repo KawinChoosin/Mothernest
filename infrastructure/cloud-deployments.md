@@ -20,11 +20,12 @@ icon: cloud
 
 #### **1. Network Protection Layer**
 
-| Service                      | Detail                                                            | Version or Spec                 | Estimated Monthly Cost (USD) |
-| ---------------------------- | ----------------------------------------------------------------- | ------------------------------- | ---------------------------- |
-| Cloud DNS                    | จัดการ Domain Name ของแอป                                         | Standard Zone                   | $1.00                        |
-| Cloud Load Balancing & Armor | กระจายทราฟฟิกและป้องกันโจมตี (DDoS)                               | Global HTTP(S) LB + Basic Armor | $20.00                       |
-| Cloud CDN                    | ทำหน้าที่เก็บสำเนาไฟล์ ไว้บน Server ที่กระจายอยู่ใกล้ตัวผู้ใช้งาน | Standard/Premium Tier           | \~$7.00                      |
+| Service                      | Detail                                                                                       | Version or Spec                    | Estimated Monthly Cost (USD) |
+| ---------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------- |
+| Cloud DNS                    | จัดการ Domain Name ของแอป                                                                    | Standard Zone                      | $1.00                        |
+| Cloud Load Balancing & Armor | กระจายทราฟฟิกและป้องกันโจมตี (DDoS)                                                          | Global HTTP(S) LB + Basic Armor    | $20.00                       |
+| Cloud API Gateway            | ตรวจสอบสิทธิ์เข้าใช้งาน (JWT Auth) และควบคุมโควต้าการเรียกใช้ AI (Rate Limiting) ตามรายบุคคล | Fully Managed Service (GA Version) | \~$2.00                      |
+| Cloud CDN                    | ทำหน้าที่เก็บสำเนาไฟล์ ไว้บน Server ที่กระจายอยู่ใกล้ตัวผู้ใช้งาน                            | Standard/Premium Tier              | \~$7.00                      |
 
 #### 2. CI/CD Deployment Pipeline
 
