@@ -90,14 +90,12 @@ icon: cloud
 
 2\. การกระจายศูนย์ข้อมูลแบบ Polyglot Persistence (Data Layer)
 
-*   เหตุผล: ในสถาปัตยกรรมสมัยใหม่ไม่มีฐานข้อมูลใดที่เหมาะสมกับทุกลักษณะงาน (No Silver Bullet) การฝืนเก็บข้อมูลทุกประเภทลงใน Relational Database เพียงอย่างเดียวจะก่อให้เกิดปัญหาคอขวด (Bottleneck) และค่าใช้จ่ายที่สูงเกินความจำเป็น
-
-    ผลลัพธ์ (New Optimized Method): โครงการจึงเลือกใช้กลยุทธ์ Polyglot Persistence เพื่อกระจายภาระงานไปยังฐานข้อมูลที่เหมาะสมที่สุดตามคุณลักษณะของข้อมูล (Data Characteristics) ดังนี้:
-
-    * Cloud SQL (PostgreSQL 16): ใช้สำหรับจัดเก็บข้อมูลที่มีความสัมพันธ์ซับซ้อน (Relational Data) และข้อมูลที่ต้องรักษาความถูกต้องเข้มงวด (Data Integrity)
-    * Cloud Firestore (Serverless NoSQL): ใช้จัดเก็บข้อมูลกึ่งโครงสร้าง (Semi-structured) เช่น User Profiles, Real-time Community Feed และ Chat Sessions ซึ่งต้องการความเร็วในการเข้าถึงข้อมูล (Low Latency) และรองรับการทำ Real-time Sync โดยไม่ต้องเสียค่าใช้จ่ายคงที่แบบ Redis
-    * In-Memory Local Caching (Efficiency Strategy): โครงการตัดสินใจใช้หน่วยความจำภายใน (Local RAM) ของ Cloud Run ทำหน้าที่เป็น Feed Cache แทนการใช้ External Cache (เช่น Redis) เพื่อบริหารจัดการงบประมาณให้มีประสิทธิภาพสูงสุด (Cost-Effective) โดยยังคงรักษาความเร็วในการแสดงผลหน้าฟีดไว้ในระดับมิลลิวินาที
-    * BigQuery (Data Warehouse): ทำหน้าที่เป็นศูนย์กลางข้อมูลสำหรับงาน MLOps เพื่อจัดเก็บ Feature Store และพฤติกรรมการใช้งาน (Clickstream Logs) สำหรับใช้ในการฝึกสอนโมเดล AI ในระยะยาว
+* เหตุผล: ในสถาปัตยกรรมสมัยใหม่ไม่มีฐานข้อมูลใดที่เหมาะสมกับทุกลักษณะงาน (No Silver Bullet) การฝืนเก็บข้อมูลทุกประเภทลงใน Relational Database เพียงอย่างเดียวจะก่อให้เกิดปัญหาคอขวด (Bottleneck) และค่าใช้จ่ายที่สูงเกินความจำเป็น
+* ผลลัพธ์ (New Optimized Method): โครงการจึงเลือกใช้กลยุทธ์ Polyglot Persistence เพื่อกระจายภาระงานไปยังฐานข้อมูลที่เหมาะสมที่สุดตามคุณลักษณะของข้อมูล (Data Characteristics) ดังนี้:
+  * Cloud SQL (PostgreSQL 16): ใช้สำหรับจัดเก็บข้อมูลที่มีความสัมพันธ์ซับซ้อน (Relational Data) และข้อมูลที่ต้องรักษาความถูกต้องเข้มงวด (Data Integrity)
+  * Cloud Firestore (Serverless NoSQL): ใช้จัดเก็บข้อมูลกึ่งโครงสร้าง (Semi-structured) เช่น User Profiles, Real-time Community Feed และ Chat Sessions ซึ่งต้องการความเร็วในการเข้าถึงข้อมูล (Low Latency) และรองรับการทำ Real-time Sync โดยไม่ต้องเสียค่าใช้จ่ายคงที่แบบ Redis
+  * In-Memory Local Caching (Efficiency Strategy): โครงการตัดสินใจใช้หน่วยความจำภายใน (Local RAM) ของ Cloud Run ทำหน้าที่เป็น Feed Cache แทนการใช้ External Cache (เช่น Redis) เพื่อบริหารจัดการงบประมาณให้มีประสิทธิภาพสูงสุด (Cost-Effective) โดยยังคงรักษาความเร็วในการแสดงผลหน้าฟีดไว้ในระดับมิลลิวินาที
+  * BigQuery (Data Warehouse): ทำหน้าที่เป็นศูนย์กลางข้อมูลสำหรับงาน MLOps เพื่อจัดเก็บ Feature Store และพฤติกรรมการใช้งาน (Clickstream Logs) สำหรับใช้ในการฝึกสอนโมเดล AI ในระยะยาว
 
 3\. การลงทุนที่จำเป็นใน Vertex AI Vector Search (AI & MLOps Layer)
 
