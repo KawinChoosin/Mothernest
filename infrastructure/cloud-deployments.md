@@ -6,11 +6,11 @@ icon: cloud
 
 #### Simplified
 
-<figure><img src="../.gitbook/assets/cloud (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/cloud (3).png" alt=""><figcaption></figcaption></figure>
 
 #### Full
 
-<figure><img src="../.gitbook/assets/cloudfull (3).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/cloudfull (4).png" alt=""><figcaption></figcaption></figure>
 
 โครงการ MotherNest เลือกใช้ Google Cloud Platform (GCP) เป็นผู้ให้บริการคลาวด์หลักสำหรับรองรับการประมวลผลแอปพลิเคชัน, ระบบปัญญาประดิษฐ์ (AI & MLOps), และการป้องกันความปลอดภัยเครือข่ายด่านหน้า สถาปัตยกรรมถูกออกแบบภายใต้แนวคิด Serverless-First และ Managed Services เพื่อลดภาระการดูแลระบบ (Operational Overhead) และสามารถขยายตัวอัตโนมัติ (Auto-scaling) เพื่อรองรับเป้าหมายผู้ใช้งาน 1,000 DAU
 
@@ -50,7 +50,7 @@ icon: cloud
 
 #### 5. Data Layer 🗄️
 
-<table><thead><tr><th>Service</th><th>Detail</th><th width="184">Version or Spec</th><th>Estimated Monthly Cost (USD)</th></tr></thead><tbody><tr><td>Cloud Storage</td><td>เก็บไฟล์ภาพ, บทความ, เอกสารทางการแพทย์</td><td>Standard Tier (พื้นที่ประมาณ 50 GB)</td><td>~$1.00</td></tr><tr><td>Cloud SQL (PostgreSQL)</td><td>เก็บข้อมูลหลัก และทำ Vector Store (pgvector)</td><td>db-g1-small (1 vCPU, 1.7GB RAM) + 50GB</td><td>~$35.00</td></tr><tr><td>Cloud Firestore</td><td>เก็บ Feature Store, Feedback และ Logs</td><td>Standard (โควต้าอ่านเขียน 50k ครั้ง/วัน)</td><td>~$5.00</td></tr><tr><td>Memorystore (Redis)</td><td>ระบบ Cache ลดภาระ Database ให้แอปโหลดไว</td><td>Basic Tier (1 GB capacity)</td><td>~$35.00</td></tr><tr><td>BigQuery</td><td>จัดเก็บ Feature Store, Click Logs และชุดข้อมูลฝึกสอน AI (MLOps)</td><td>On-demand (ฟรี 10 GB Storage / 1 TB Query แรกต่อเดือน)</td><td>~$0.00 - $2.00</td></tr></tbody></table>
+<table><thead><tr><th>Service</th><th>Detail</th><th width="184">Version or Spec</th><th>Estimated Monthly Cost (USD)</th></tr></thead><tbody><tr><td>Cloud Storage</td><td>เก็บไฟล์ภาพ, บทความ, เอกสารทางการแพทย์</td><td>Standard Tier (พื้นที่ประมาณ 50 GB)</td><td>~$1.00</td></tr><tr><td>Cloud SQL (PostgreSQL)</td><td>เก็บข้อมูลหลัก และทำ Vector Store (pgvector)</td><td>db-g1-small (1 vCPU, 1.7GB RAM) + 50GB</td><td>~$35.00</td></tr><tr><td>Cloud Firestore</td><td>เก็บ Feature Store, Feedback และ Logs</td><td>Standard (โควต้าอ่านเขียน 50k ครั้ง/วัน)</td><td>~$5.00</td></tr><tr><td>BigQuery</td><td>จัดเก็บ Feature Store, Click Logs และชุดข้อมูลฝึกสอน AI (MLOps)</td><td>On-demand (ฟรี 10 GB Storage / 1 TB Query แรกต่อเดือน)</td><td>~$0.00 - $2.00</td></tr></tbody></table>
 
 #### 6. AI and MLOps Layer 🤖
 
@@ -90,8 +90,14 @@ icon: cloud
 
 2\. การกระจายศูนย์ข้อมูลแบบ Polyglot Persistence (Data Layer)
 
-* เหตุผล: ไม่มีฐานข้อมูลใดที่เหมาะสมกับทุกงาน (No silver bullet) หากเก็บข้อมูลทุกอย่างลง Cloud SQL จะทำให้ระบบช้าและมีค่าใช้จ่ายสูง
-* ผลลัพธ์: โครงการจึงเลือกใช้กลยุทธ์ Polyglot Persistence โดยใช้ Cloud SQL สำหรับข้อมูลเชิงสัมพันธ์/Vector, ใช้ Firestore สำหรับข้อมูลกึ่งโครงสร้าง (Chat/Profile) ที่ต้องการความเร็ว, ใช้ Redis สำหรับทำ Semantic Cache ลดการเรียก API ซ้ำซ้อน, และใช้ BigQuery เป็น Data Warehouse สำหรับงาน MLOps ซึ่งการกระจายงานนี้ช่วยลดปัญหาคอขวด (Bottleneck) และใช้ Free Tier ของแต่ละบริการได้อย่างคุ้มค่า
+*   เหตุผล: ในสถาปัตยกรรมสมัยใหม่ไม่มีฐานข้อมูลใดที่เหมาะสมกับทุกลักษณะงาน (No Silver Bullet) การฝืนเก็บข้อมูลทุกประเภทลงใน Relational Database เพียงอย่างเดียวจะก่อให้เกิดปัญหาคอขวด (Bottleneck) และค่าใช้จ่ายที่สูงเกินความจำเป็น
+
+    ผลลัพธ์ (New Optimized Method): โครงการจึงเลือกใช้กลยุทธ์ Polyglot Persistence เพื่อกระจายภาระงานไปยังฐานข้อมูลที่เหมาะสมที่สุดตามคุณลักษณะของข้อมูล (Data Characteristics) ดังนี้:
+
+    * Cloud SQL (PostgreSQL 16): ใช้สำหรับจัดเก็บข้อมูลที่มีความสัมพันธ์ซับซ้อน (Relational Data) และข้อมูลที่ต้องรักษาความถูกต้องเข้มงวด (Data Integrity)
+    * Cloud Firestore (Serverless NoSQL): ใช้จัดเก็บข้อมูลกึ่งโครงสร้าง (Semi-structured) เช่น User Profiles, Real-time Community Feed และ Chat Sessions ซึ่งต้องการความเร็วในการเข้าถึงข้อมูล (Low Latency) และรองรับการทำ Real-time Sync โดยไม่ต้องเสียค่าใช้จ่ายคงที่แบบ Redis
+    * In-Memory Local Caching (Efficiency Strategy): โครงการตัดสินใจใช้หน่วยความจำภายใน (Local RAM) ของ Cloud Run ทำหน้าที่เป็น Feed Cache แทนการใช้ External Cache (เช่น Redis) เพื่อบริหารจัดการงบประมาณให้มีประสิทธิภาพสูงสุด (Cost-Effective) โดยยังคงรักษาความเร็วในการแสดงผลหน้าฟีดไว้ในระดับมิลลิวินาที
+    * BigQuery (Data Warehouse): ทำหน้าที่เป็นศูนย์กลางข้อมูลสำหรับงาน MLOps เพื่อจัดเก็บ Feature Store และพฤติกรรมการใช้งาน (Clickstream Logs) สำหรับใช้ในการฝึกสอนโมเดล AI ในระยะยาว
 
 3\. การลงทุนที่จำเป็นใน Vertex AI Vector Search (AI & MLOps Layer)
 
