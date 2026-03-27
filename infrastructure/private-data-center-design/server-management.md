@@ -6,11 +6,11 @@ icon: gear
 
 #### Simplified Diagram
 
-<figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-12_10_04-AM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-3_30_07-PM.png" alt=""><figcaption></figcaption></figure>
 
 #### Full Diagram
 
-<figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-1_44_31-PM (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-3_33_40-PM.png" alt=""><figcaption></figcaption></figure>
 
 #### Server Management & Virtualization Cluster
 
