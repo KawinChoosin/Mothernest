@@ -6,11 +6,11 @@ icon: cloud
 
 #### Simplified
 
-<figure><img src="../.gitbook/assets/cloud (1).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/cloud (2).png" alt=""><figcaption></figcaption></figure>
 
 #### Full
 
-<figure><img src="../.gitbook/assets/cloudfull (2).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/cloudfull (3).png" alt=""><figcaption></figcaption></figure>
 
 โครงการ MotherNest เลือกใช้ Google Cloud Platform (GCP) เป็นผู้ให้บริการคลาวด์หลักสำหรับรองรับการประมวลผลแอปพลิเคชัน, ระบบปัญญาประดิษฐ์ (AI & MLOps), และการป้องกันความปลอดภัยเครือข่ายด่านหน้า สถาปัตยกรรมถูกออกแบบภายใต้แนวคิด Serverless-First และ Managed Services เพื่อลดภาระการดูแลระบบ (Operational Overhead) และสามารถขยายตัวอัตโนมัติ (Auto-scaling) เพื่อรองรับเป้าหมายผู้ใช้งาน 1,000 DAU
 
@@ -18,7 +18,9 @@ icon: cloud
 
 ### Provider: Google Cloud Platform
 
-#### **1. Network Protection Layer**
+<figure><img src="../.gitbook/assets/images (1).png" alt=""><figcaption></figcaption></figure>
+
+#### **1. Network Protection Layer** 🛡️
 
 | Service                      | Detail                                                                                       | Version or Spec                    | Estimated Monthly Cost (USD) |
 | ---------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------- | ---------------------------- |
@@ -27,30 +29,30 @@ icon: cloud
 | Cloud API Gateway            | ตรวจสอบสิทธิ์เข้าใช้งาน (JWT Auth) และควบคุมโควต้าการเรียกใช้ AI (Rate Limiting) ตามรายบุคคล | Fully Managed Service (GA Version) | \~$2.00                      |
 | Cloud CDN                    | ทำหน้าที่เก็บสำเนาไฟล์ ไว้บน Server ที่กระจายอยู่ใกล้ตัวผู้ใช้งาน                            | Standard/Premium Tier              | \~$7.00                      |
 
-#### 2. CI/CD Deployment Pipeline
+#### 2. CI/CD Deployment Pipeline 🚀
 
 | Service           | Detail                                               | Version or Spec                                         | Estimated Monthly Cost (USD) |
 | ----------------- | ---------------------------------------------------- | ------------------------------------------------------- | ---------------------------- |
 | Cloud Build       | Build, Test และ Deploy ซอฟต์แวร์แบบอัตโนมัติ (CI/CD) | Serverless CI/CD Platform (Managed Service) รุ่นปี 2026 | \~$0.10                      |
 | Artifact Registry | คลังเก็บ Docker Images พร้อมระบบสแกนช่องโหว่         | Standard Storage (50GB)                                 | \~$5.00                      |
 
-#### **3. Application and Compute Layer**
+#### **3. Application and Compute Layer** 💻
 
 | Service          | Detail                                    | Version or Spec                            | Estimated Monthly Cost (USD) |
 | ---------------- | ----------------------------------------- | ------------------------------------------ | ---------------------------- |
 | Cloud Run & Jobs | รัน API Backend, RAG Pipeline และ ML Jobs | Serverless, 1 vCPU, 512MB RAM (Auto-scale) | \~$10.00                     |
 
-#### **4. Hybrid Connectivity Layer**
+#### **4. Hybrid Connectivity Layer** 🔗
 
 | Service        | Detail                                 | Version or Spec                | Estimated Monthly Cost (USD) |
 | -------------- | -------------------------------------- | ------------------------------ | ---------------------------- |
 | HA VPN (IPsec) | เชื่อมต่อ On-premise Secure Datacenter | 2 Tunnels (เพื่อความเสถียร HA) | \~$72.00                     |
 
-#### 5. Data Layer
+#### 5. Data Layer 🗄️
 
 <table><thead><tr><th>Service</th><th>Detail</th><th width="184">Version or Spec</th><th>Estimated Monthly Cost (USD)</th></tr></thead><tbody><tr><td>Cloud Storage</td><td>เก็บไฟล์ภาพ, บทความ, เอกสารทางการแพทย์</td><td>Standard Tier (พื้นที่ประมาณ 50 GB)</td><td>~$1.00</td></tr><tr><td>Cloud SQL (PostgreSQL)</td><td>เก็บข้อมูลหลัก และทำ Vector Store (pgvector)</td><td>db-g1-small (1 vCPU, 1.7GB RAM) + 50GB</td><td>~$35.00</td></tr><tr><td>Cloud Firestore</td><td>เก็บ Feature Store, Feedback และ Logs</td><td>Standard (โควต้าอ่านเขียน 50k ครั้ง/วัน)</td><td>~$5.00</td></tr><tr><td>Memorystore (Redis)</td><td>ระบบ Cache ลดภาระ Database ให้แอปโหลดไว</td><td>Basic Tier (1 GB capacity)</td><td>~$35.00</td></tr><tr><td>BigQuery</td><td>จัดเก็บ Feature Store, Click Logs และชุดข้อมูลฝึกสอน AI (MLOps)</td><td>On-demand (ฟรี 10 GB Storage / 1 TB Query แรกต่อเดือน)</td><td>~$0.00 - $2.00</td></tr></tbody></table>
 
-#### 6. AI and MLOps Layer
+#### 6. AI and MLOps Layer 🤖
 
 | Service                   | Detail                                        | Version or Spec                                  | Estimated Monthly Cost (USD) |
 | ------------------------- | --------------------------------------------- | ------------------------------------------------ | ---------------------------- |
@@ -60,7 +62,7 @@ icon: cloud
 | Vertex AI Model Registry  | จัดเก็บและจัดการเวอร์ชันของโมเดล ML           | Standard (คิดค่าพื้นที่จัดเก็บแบบ Cloud Storage) | $0.00 (โควต้าฟรีครอบคลุม)    |
 | Vertex AI Text-Embeddings | แปลง Text ให้กลายเป็น Vectors หรือ Embeddings | Standard                                         | \~$0.825                     |
 
-#### 7. Operations, Security and Governance Layer
+#### 7. Operations, Security and Governance Layer 🔐
 
 | Service                       | Detail                                            | Version or Spec                         | Estimated Monthly Cost (USD)    |
 | ----------------------------- | ------------------------------------------------- | --------------------------------------- | ------------------------------- |
@@ -71,7 +73,7 @@ icon: cloud
 | Cloud KMS (CMEK)              | จัดการคีย์สำหรับเข้ารหัสข้อมูล (Encryption Keys)  | Standard (เก็บไม่กี่ Key และใช้งานน้อย) | \~$1.00                         |
 | Cloud Audit Logs              | เก็บบันทึกประวัติการเข้าถึงและการทำงาน (Security) | Standard (ฟรี 50GB แรก/เดือน)           | $0.00 (Free Tier)               |
 
-#### 8. BI, Analytics and Admin Layer
+#### 8. BI, Analytics and Admin Layer 📊
 
 | Service       | Detail                                             | Version or Spec         | Estimated Monthly Cost (USD) |
 | ------------- | -------------------------------------------------- | ----------------------- | ---------------------------- |
