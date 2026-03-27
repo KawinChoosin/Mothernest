@@ -104,8 +104,27 @@ MotherNest เป็นเว็บแอปที่พัฒนาเพื่
 
 ### 📌 More sections
 
-* [Project Management](/broken/pages/kHKVCPlu7pHMX2Bb4NZr)
-* [Minute Meeting](/broken/pages/CIAouqYjh4kF29Gihy4r)
+* [Project Management](/broken/pages/2gSR17kqva5MVW2dzxxD)
+* [Minute Meeting](/broken/pages/xdgOwBK1fngyIzum1Erl)
+
+<details>
+
+<summary>ดูหัวข้อย่อยด้าน Software เพิ่มเติม</summary>
+
+* [User Interfaces](software-developement/users-flow-and-user-interfaces/user-interfaces.md)
+* [Users Flow](software-developement/users-flow-and-user-interfaces/users-flow.md)
+
+</details>
+
+<details>
+
+<summary>ดูหัวข้อย่อยด้าน System เพิ่มเติม</summary>
+
+* [Server and Storage Equipment](infrastructure/private-data-center-design/server-and-storage-equipment.md)
+* [Server Management](infrastructure/private-data-center-design/server-management.md)
+* [Data Center Facility & Operations Management](infrastructure/private-data-center-design/data-center-facility-and-operations-management.md)
+
+</details>
 
 <details>
 
