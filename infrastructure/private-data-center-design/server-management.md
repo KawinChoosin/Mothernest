@@ -4,8 +4,6 @@ icon: gear
 
 # Server Management
 
-
-
 #### Simplified Diagram
 
 <figure><img src="../../.gitbook/assets/diagram-export-3-27-2026-12_10_04-AM.png" alt=""><figcaption></figcaption></figure>
@@ -38,6 +36,27 @@ icon: gear
 * Zabbix Monitoring: ติดตั้งบน Infrastructure Server แยกต่างหากเพื่อทำหน้าที่ตรวจสอบสถานะสุขภาพ (Health Check) ของทั้งเซิร์ฟเวอร์ทางกายภาพ (Physical Nodes) และเซิร์ฟเวอร์เสมือน (VMs) ระดับลึก เช่น อุณหภูมิ CPU, สถานะการอ่านเขียนดิสก์ (I/O), และการใช้แบนด์วิดท์เครือข่าย
 * Proxmox Backup Server (PBS): บริหารจัดการการทำ Snapshot และ Backup ระดับ VM ทั้งก้อนอย่างเป็นระบบ เพื่อให้สามารถกู้คืนระบบ (Restore) กลับมายังสถานะก่อนหน้าได้ทันทีหากเกิดข้อผิดพลาดรุนแรงระดับ OS หรือถูกโจมตีทางไซเบอร์
 
+## Physical Servers
+
+| Type                                         | CPU                                         | Storage                                                                               | Operating System | Software                       |
+| -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------- | ------------------------------ |
+| Virtualization & Compute Servers             | Intel Xeon Gold 5418Y 24 Cores / 48 Threads | <p>2 × 480GB NVMe RAID 1</p><p>4 × 960GB SAS SSD RAID 10</p><p>2 × 4TB HDD RAID 1</p> | Rocky Linux 9    | -                              |
+| Infrastructure Servers (Monitoring & Backup) | Intel Xeon Gold 5418Y 8 Cores               | 4 × 4TB HDD RAID 1                                                                    | Rocky Linux 9    | Zabbix + Proxmox Backup Server |
+
+## Virtual Machine Cluster
+
+<table><thead><tr><th width="162.04296875" valign="middle">VM Type</th><th width="277.9765625">Usage</th><th width="105.09765625">Amount</th><th width="167.90625">Operating System</th><th>Software</th></tr></thead><tbody><tr><td valign="middle">K8s Control</td><td>สั่งการและควบคุมดูแลความเรียบร้อยของ Kubernetes ทั้งหมด</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>kubeadm, containerd, Etcd</td></tr><tr><td valign="middle">K8s Worker</td><td>เป็นพื้นที่สำหรับรัน Containersในชั้น Application Services Layer</td><td>2</td><td>Ubuntu Server 24.04 LTS</td><td>Kubelet, Kube-proxy, Docker Runtime</td></tr><tr><td valign="middle">Database Primary</td><td>เป็นฐานข้อมูลหลักสำหรับการเขียนข้อมูล (Write Operations) และเก็บข้อมูลที่ต้องการความถูกต้องสูง (ACID Compliance) เช่น ข้อมูลสุขภาพและบัญชีผู้ใช้งาน</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>PostgreSQL 16, pgvector, pgBouncer</td></tr><tr><td valign="middle">Database Replica</td><td>รองรับการอ่านข้อมูล และทำ Vector Search สำหรับ AI เพื่อลดภาระเครื่อง Primary ไม่ให้ระบบหน่วง</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>PostgreSQL 16, pgvector, pgBouncer</td></tr><tr><td valign="middle">Object Storage</td><td>ใช้สำหรับเก็บไฟล์ขนาดใหญ่แบบ On-premise เช่น รูปภาพโปรไฟล์ชั่วคราว หรือไฟล์ Log ก่อนที่จะถูก Sync ขึ้นไปสำรองบน Cloud Storage เพื่อความรวดเร็วในการเข้าถึงภายในเครือข่าย</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>MinIO</td></tr><tr><td valign="middle">Active Directory / LDAP</td><td>จัดการสิทธิ์การเข้าถึง (RBAC) และการยืนยันตัวตนของเจ้าหน้าที่ในองค์กรที่เข้ามาดูแลระบบทั้งหมดแบบรวมศูนย์</td><td>2</td><td>Ubuntu Server (Samba4)</td><td>Active Directory Domain Services (AD DS), LDAPS</td></tr><tr><td valign="middle">NTP Server</td><td>ซิงโครไนซ์เวลา (Time Synchronization) ของเซิร์ฟเวอร์และ VM ทั้งหมดในศูนย์ข้อมูลให้ตรงกันระดับมิลลิวินาที</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>Chrony (NTP Daemon)</td></tr></tbody></table>
+
+## Application Services Layer
+
+| **Service Name**        | **Usage (Details)**                                            | **CPU (vCPU)** | **RAM (GB)** | **Deployment Type**         |
+| ----------------------- | -------------------------------------------------------------- | -------------- | ------------ | --------------------------- |
+| Authentication Service  | จัดการระบบ Login, ออก JWT Token และตรวจสอบสิทธิ์ (RBAC)        | 0.5 - 1.0      | 0.5 - 1.0    | Kubernetes Deployment (HPA) |
+| Sensitive Data Service  | ประมวลผลและเข้ารหัสข้อมูลสุขภาพ (Medical Data) ตามมาตรฐาน PDPA | 1.0 - 1.5      | 1.0 - 2.0    | Kubernetes Deployment       |
+| AI Inference Service    | รันโมเดลภาษาขนาดเล็ก (SLM) และประมวลผลเวกเตอร์ (SBERT/MLP)     | 2.0 - 4.0      | 4.0 - 8.0    | Kubernetes Deployment (VPA) |
+| RAG Ingestion Service   | ทำ Data Pipeline หั่นข้อความ (Chunking) และสร้าง Vector Index  | 1.0 - 2.0      | 2.0 - 4.0    | Kubernetes Job / CronJob    |
+| Data Processing Service | ทำความสะอาดและจัดระเบียบข้อมูล (ETL) ก่อนบันทึกลงฐานข้อมูล     | 1.0 - 1.5      | 1.0 - 2.0    | Kubernetes Deployment       |
+
 #### 💡 Architectural Justifications
 
 ในการออกแบบสถาปัตยกรรมระดับเซิร์ฟเวอร์ โครงการ MotherNest ได้ตัดสินใจเชิงวิศวกรรมเพื่อเพิ่มขีดความสามารถในการจัดการทรัพยากร (Resource Management) และแยกส่วนความเสียหาย (Fault Isolation) ดังนี้:
@@ -61,27 +80,6 @@ icon: gear
 
 * เหตุผล: การสำรองข้อมูลเฉพาะระดับแอปพลิเคชัน (Application-level Backup) อาจใช้เวลานานในการกู้คืน (Recovery Time Objective: RTO) หากระบบปฏิบัติการหลักเกิดความเสียหายหรือถูกโจมตี
 * ผลลัพธ์: การใช้ Proxmox Backup Server (PBS) ทำการ Snapshot และสำรองข้อมูล VM ทั้งก้อนอย่างสม่ำเสมอ ช่วยให้ทีมวิศวกรสามารถกด Restore ทั้งระบบ (รวมถึง OS, Network Config, และ Data) กลับมาใช้งานได้ภายในเวลาไม่กี่นาที ช่วยลดความเสี่ยงทางธุรกิจได้อย่างมีนัยสำคัญ
-
-## Physical Servers
-
-| Type                                         | CPU                                         | Storage                                                                               | Operating System | Software                       |
-| -------------------------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------- | ------------------------------ |
-| Virtualization & Compute Servers             | Intel Xeon Gold 5418Y 24 Cores / 48 Threads | <p>2 × 480GB NVMe RAID 1</p><p>4 × 960GB SAS SSD RAID 10</p><p>2 × 4TB HDD RAID 1</p> | Rocky Linux 9    | -                              |
-| Infrastructure Servers (Monitoring & Backup) | Intel Xeon Gold 5418Y 8 Cores               | 4 × 4TB HDD RAID 1                                                                    | Rocky Linux 9    | Zabbix + Proxmox Backup Server |
-
-## Virtual Machine Cluster
-
-<table><thead><tr><th width="162.04296875" valign="middle">VM Type</th><th width="277.9765625">Usage</th><th width="105.09765625">Amount</th><th width="167.90625">Operating System</th><th>Software</th></tr></thead><tbody><tr><td valign="middle">K8s Control</td><td>สั่งการและควบคุมดูแลความเรียบร้อยของ Kubernetes ทั้งหมด</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>kubeadm, containerd, Etcd</td></tr><tr><td valign="middle">K8s Worker</td><td>เป็นพื้นที่สำหรับรัน Containersในชั้น Application Services Layer</td><td>2</td><td>Ubuntu Server 24.04 LTS</td><td>Kubelet, Kube-proxy, Docker Runtime</td></tr><tr><td valign="middle">Database Primary</td><td>เป็นฐานข้อมูลหลักสำหรับการเขียนข้อมูล (Write Operations) และเก็บข้อมูลที่ต้องการความถูกต้องสูง (ACID Compliance) เช่น ข้อมูลสุขภาพและบัญชีผู้ใช้งาน</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>PostgreSQL 16, pgvector, pgBouncer</td></tr><tr><td valign="middle">Database Replica</td><td>รองรับการอ่านข้อมูล และทำ Vector Search สำหรับ AI เพื่อลดภาระเครื่อง Primary ไม่ให้ระบบหน่วง</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>PostgreSQL 16, pgvector, pgBouncer</td></tr><tr><td valign="middle">Object Storage</td><td>ใช้สำหรับเก็บไฟล์ขนาดใหญ่แบบ On-premise เช่น รูปภาพโปรไฟล์ชั่วคราว หรือไฟล์ Log ก่อนที่จะถูก Sync ขึ้นไปสำรองบน Cloud Storage เพื่อความรวดเร็วในการเข้าถึงภายในเครือข่าย</td><td>1</td><td>Ubuntu Server 24.04 LTS</td><td>MinIO</td></tr><tr><td valign="middle">Active Directory / LDAP</td><td>จัดการสิทธิ์การเข้าถึง (RBAC) และการยืนยันตัวตนของเจ้าหน้าที่ในองค์กรที่เข้ามาดูแลระบบทั้งหมดแบบรวมศูนย์</td><td>2</td><td>Ubuntu Server (Samba4)</td><td>Active Directory Domain Services (AD DS), LDAPS</td></tr></tbody></table>
-
-## Application Services Layer
-
-| **Service Name**        | **Usage (Details)**                                            | **CPU (vCPU)** | **RAM (GB)** | **Deployment Type**         |
-| ----------------------- | -------------------------------------------------------------- | -------------- | ------------ | --------------------------- |
-| Authentication Service  | จัดการระบบ Login, ออก JWT Token และตรวจสอบสิทธิ์ (RBAC)        | 0.5 - 1.0      | 0.5 - 1.0    | Kubernetes Deployment (HPA) |
-| Sensitive Data Service  | ประมวลผลและเข้ารหัสข้อมูลสุขภาพ (Medical Data) ตามมาตรฐาน PDPA | 1.0 - 1.5      | 1.0 - 2.0    | Kubernetes Deployment       |
-| AI Inference Service    | รันโมเดลภาษาขนาดเล็ก (SLM) และประมวลผลเวกเตอร์ (SBERT/MLP)     | 2.0 - 4.0      | 4.0 - 8.0    | Kubernetes Deployment (VPA) |
-| RAG Ingestion Service   | ทำ Data Pipeline หั่นข้อความ (Chunking) และสร้าง Vector Index  | 1.0 - 2.0      | 2.0 - 4.0    | Kubernetes Job / CronJob    |
-| Data Processing Service | ทำความสะอาดและจัดระเบียบข้อมูล (ETL) ก่อนบันทึกลงฐานข้อมูล     | 1.0 - 1.5      | 1.0 - 2.0    | Kubernetes Deployment       |
 
 ## On-Premise Infrastructure Overview
 
