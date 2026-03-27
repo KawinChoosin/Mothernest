@@ -6,7 +6,7 @@ icon: wrench
 
 #### **เครื่องมือที่ใช้ในการจัดการ**
 
-#### Notion <a href="#notion" id="notion"></a>
+#### Notion -> [https://www.notion.so/Adv-CPE-G1-J-Company-2b00fbd307c680feb946e70c7be8d8e9](https://www.notion.so/Adv-CPE-G1-J-Company-2b00fbd307c680feb946e70c7be8d8e9) <a href="#notion" id="notion"></a>
 
 ![](https://move-together.gitbook.io/move-together/~gitbook/image?url=https%3A%2F%2F2623456982-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FH0dmgNplsCyQia7yp3GF%252Fuploads%252FKsecz9URCmDknZn2R6SS%252FIMG_5110.webp%3Falt%3Dmedia%26token%3D79bb21ff-c1b7-42ef-91ea-690b16247d34\&width=768\&dpr=3\&quality=100\&sign=e12e9a31\&sv=2)
 
