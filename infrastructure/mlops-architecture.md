@@ -6,29 +6,53 @@ icon: head-side-gear
 
 ## 1. AI Recommendation System
 
-<figure><img src="../.gitbook/assets/diagram-export-3-26-2026-8_57_52-PM.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/diagram-export-3-27-2026-2_39_08-PM (1).png" alt=""><figcaption></figcaption></figure>
 
 ### Two-Tower Model Pipeline in Hybrid Cloud
 
 ระบบแนะนำบทความสำหรับคุณแม่ตั้งครรภ์ (Personalized Feed) ในแอปพลิเคชัน MotherNest ถูกออกแบบด้วยสถาปัตยกรรม Two-Tower Deep Learning ภายใต้สภาพแวดล้อมแบบ Hybrid Cloud เพื่อรักษาความปลอดภัยของข้อมูลส่วนบุคคลขั้นสูงสุด (Data Privacy) ในขณะที่ยังคงความสามารถในการสเกล (Scalability) และมีความหน่วงต่ำ (Low Latency) โครงสร้างสถาปัตยกรรมแบ่งออกเป็น 5 โซนหลัก ดังนี้:
 
-#### 1. องค์ประกอบของสถาปัตยกรรม (System Components by Zone)
+### 1. องค์ประกอบของสถาปัตยกรรม (System Components by Zone)
 
-*   ZONE 0: On-Premise Secure Datacenter (ศูนย์ข้อมูลความปลอดภัยสูง)
+สถาปัตยกรรมถูกแบ่งออกเป็น 5 โซนหลัก เพื่อแยกหน้าที่ความรับผิดชอบ (Separation of Concerns) และรักษาความปลอดภัยของข้อมูลสุขภาพตามมาตรฐาน PDPA:
 
-    เป็นแหล่งเก็บข้อมูลหลัก (Source of Truth) โดยมี PostgreSQL 16 จัดเก็บข้อมูลอายุครรภ์ (Gestational Age) และข้อมูลส่วนบุคคล ซึ่งถูกปกป้องด้วย Fortinet FortiGate HA และเชื่อมต่อกับคลาวด์ผ่านอุโมงค์เข้ารหัส HA VPN (IPsec Tunnel)
-*   ZONE 1: Data Pipeline & Feature Store (ส่งข้อมูลและคลังฟีเจอร์)
+#### 🛡️ ZONE 0: Secure Datacenter (ศูนย์ข้อมูลความปลอดภัยสูง)
 
-    ประกอบด้วย Cloud Storage สำหรับเก็บไฟล์บทความดิบ, Cloud Run Job สำหรับทำ Data Preparation, และ BigQuery ซึ่งทำหน้าที่เป็น Feature Store และ Label Store สำหรับเก็บสถิติการคลิก นอกจากนี้ยังมี Firestore (Profile Cache) ทำหน้าที่เป็นแคชความเร็วสูงสำหรับข้อมูลโปรไฟล์ออนไลน์
-*   ZONE 2: MLOps & Offline Pipeline (ฝึกสอนโมเดลอัตโนมัติ)
+บทบาท: แหล่งจัดเก็บข้อมูลหลัก (Source of Truth) ที่เน้นความปลอดภัยสูงสุด
 
-    ใช้ Vertex AI Training ในการฝึกสอนโมเดลแบบคู่ขนาน (Joint Training) ตามสถาปัตยกรรม Two-Tower และจัดเก็บโมเดลที่ฝึกเสร็จแล้วใน Model Registry จากนั้นใช้ Cloud Run Job แปลงบทความทั้งหมดเป็นเวกเตอร์เพื่อเก็บใน Vertex AI Vector Search
-*   ZONE 3: Online Serving Pipeline (กระบวนการให้บริการแบบเรียลไทม์)
+* PostgreSQL 16 Cluster: จัดเก็บข้อมูลที่มีความอ่อนไหวสูง เช่น อายุครรภ์ (Gestational Age) และประวัติสุขภาพส่วนบุคคล
+* Enterprise Security: ปกป้องด้วย Fortinet FortiGate (Active-Passive HA) และเชื่อมต่อกับ Google Cloud ผ่านอุโมงค์เข้ารหัส HA VPN (IPsec Tunnel) ตลอด 24 ชั่วโมง
 
-    รับทราฟฟิกผ่าน Global Load Balancer (พร้อม Cloud Armor WAF) เพื่อความปลอดภัยระดับเครือข่าย และประมวลผลการจัดอันดับบทความผ่าน RecSys Engine (Cloud Run) ซึ่งออกแบบโครงสร้างภายในเป็น Modular Monolith
-*   ZONE 4: Monitoring & Feedback (ระบบติดตามและผลตอบรับ)
+#### 📊 ZONE 1: Data Pipeline & Feature Store (การจัดการข้อมูล)
 
-    ใช้ Event Tracker (Cloud Audit Logs) บันทึกพฤติกรรมการใช้งาน (คลิก = 1, เลื่อนผ่าน = 0) และมี Cloud Scheduler เป็นตัวจุดชนวนกระบวนการฝึกสอนซ้ำ (Retraining) ทุกสัปดาห์
+บทบาท: เตรียมข้อมูลและจัดทำคลังฟีเจอร์สำหรับ AI
+
+* Cloud Storage: พื้นที่จัดเก็บไฟล์บทความดิบ (Raw Articles) และคลังความรู้ทางการแพทย์
+* BigQuery (Feature Store): ทำหน้าที่เป็นคลังฟีเจอร์และ Label Store (สถิติการคลิก) เพื่อใช้ในการฝึกสอนโมเดล
+* Firestore (Profile Cache): แคชข้อมูลโปรไฟล์คุณแม่แบบ Real-time เพื่อลดภาระการดึงข้อมูลจาก On-Premise ในขณะใช้งาน
+
+#### 🧠 ZONE 2: MLOps & Offline Pipeline (การฝึกสอนโมเดล)
+
+บทบาท: กระบวนการสร้างและจัดเก็บโมเดลปัญญาประดิษฐ์แบบอัตโนมัติ
+
+* Vertex AI Training: ใช้ฝึกสอนโมเดล Two-Tower Neural Network แบบคู่ขนาน (Joint Training)
+* Vertex Model Registry: ระบบจัดการเวอร์ชันของโมเดลที่ฝึกสำเร็จแล้ว
+* Vertex AI Vector Search: คลังเก็บเวกเตอร์ของบทความ (Item Vector Pool) เพื่อรองรับการค้นหาบทความที่ใกล้เคียงกับความสนใจในระดับมิลลิวินาที
+
+#### 🚀 ZONE 3: Online Serving Pipeline (การให้บริการเรียลไทม์)
+
+บทบาท: ด่านหน้าในการรับทราฟฟิกและประมวลผลหน้าฟีดบทความ
+
+* Global Load Balancer & Cloud Armor: ป้องกันภัยคุกคามระดับเครือข่าย (DDoS/WAF) และกระจายโหลดผู้ใช้งาน
+* API Gateway: ตรวจสอบสิทธิ์เข้าใช้งาน (JWT Auth) และควบคุมโควต้าการเรียกใช้ AI (Rate Limiting) ตามรายบุคคล
+* RecSys Engine (Cloud Run): ประมวลผลการจัดอันดับบทความแบบ Modular Monolith โดยดึงข้อมูลจาก Profile Cache และ Vector Search มาคำนวณหาบทความที่ "ตรงใจและปลอดภัย" ที่สุด
+
+#### 📈 ZONE 4: Monitoring & Feedback (การติดตามและพัฒนา)
+
+บทบาท: ตรวจสอบประสิทธิภาพและจุดชนวนการพัฒนาโมเดลให้ฉลาดขึ้น
+
+* Event Tracker (Audit Logs): บันทึกพฤติกรรมคุณแม่ (คลิกอ่าน = 1, เลื่อนผ่าน = 0) เพื่อนำไปเป็น Feedback Loop
+* Cloud Scheduler: ระบบตั้งเวลาอัตโนมัติเพื่อสั่ง Retraining โมเดลทุกสัปดาห์ เพื่อให้ AI เท่าทันต่อเทรนด์ความสนใจใหม่ๆ
 
 ***
 
@@ -75,7 +99,7 @@ Comprehensive Microservices RAG in Hybrid Cloud
 
 #### องค์ประกอบหลักของระบบ (System Components by Zone)
 
-**ZONE 0: On-Premise Secure Datacenter (ศูนย์ข้อมูลความปลอดภัยสูง)**
+🛡️ **ZONE 0: On-Premise Secure Datacenter (ศูนย์ข้อมูลความปลอดภัยสูง)**
 
 ทำหน้าที่เป็นฐานข้อมูลหลักที่เก็บข้อมูลส่วนบุคคลและข้อมูลเวกเตอร์ (Medical Context) โดยไม่นำข้อมูลเหล่านี้ไปพักทิ้งไว้บน Public Cloud
 
@@ -84,12 +108,12 @@ Comprehensive Microservices RAG in Hybrid Cloud
 * Fortinet FortiGate (HA): Firewall ระดับ Enterprise ทำงานแบบ Active-Passive ปกป้องเครือข่ายภายใน
 * Google Cloud HA VPN: อุโมงค์เข้ารหัส (IPsec Tunnel) สำหรับเชื่อมต่อเครือข่ายระหว่าง GCP และ On-Premise อย่างปลอดภัย
 
-**ZONE 1: Data Pipeline (กระบวนการนำเข้าและดัชนีข้อมูล)**
+📊 **ZONE 1: Data Pipeline (กระบวนการนำเข้าและดัชนีข้อมูล)**
 
 * Medical Storage (GCS): แหล่งเก็บไฟล์เอกสารทางการแพทย์ต้นฉบับ (PDFs/Text)
 * Chunking Service & Embedding Service: Cloud Run Microservices ที่รับหน้าที่ทำความสะอาดข้อความ ตัดแบ่งคำ (Chunking) และเรียกใช้ Vertex AI เพื่อแปลงเป็นเวกเตอร์ ก่อนจะส่งไปบันทึกลง Datacenter แบบทางเดียว (One-directional Push)
 
-**ZONE 2: Deployment Pipeline (กระบวนการให้บริการตอบกลับแบบเรียลไทม์)**
+🚀 **ZONE 2: Deployment Pipeline (กระบวนการให้บริการตอบกลับแบบเรียลไทม์)**
 
 * Global Load Balancer: ทำหน้าที่เป็นด่านหน้าในระดับเครือข่ายเพื่อกระจายปริมาณการใช้งาน (Traffic) ไปยังเซิร์ฟเวอร์ที่เหมาะสมที่สุด พร้อมป้องกันการโจมตีแบบ DDoS เพื่อรักษาความเสถียรของระบบในภาพรวม
 * API Gateway: ด่านหน้าในการตรวจสอบสิทธิ์ผู้ใช้ (JWT Authentication) และควบคุมปริมาณการใช้งาน (Rate Limiting)
@@ -97,7 +121,7 @@ Comprehensive Microservices RAG in Hybrid Cloud
 * RAG Microservices: หัวใจหลักของการประมวลผล แบ่งเป็น 3 ส่วน: `Query_Embedder` (แปลงคำถามและจัดการแคช), `Context_Retriever` (ดึงข้อมูลบริบทจากฐานข้อมูล), และ `Guardrails_Prompt` (ตรวจสอบความปลอดภัยและสร้างคำตอบ)
 * Chat History (Firestore): ฐานข้อมูล NoSQL สำหรับเก็บสถานะและบริบทการสนทนาต่อเนื่องของผู้ใช้
 
-**ZONE 3 & 4: MLOps, Evaluation & Monitoring (กระบวนการเฝ้าระวังและพัฒนา AI อัตโนมัติ)**
+🧠 **ZONE 3 & 4: MLOps, Evaluation & Monitoring (กระบวนการเฝ้าระวังและพัฒนา AI อัตโนมัติ)**
 
 * Feedback Store & Audit Logs: จัดเก็บผลโหวตความพึงพอใจจากผู้ใช้และ Log ประสิทธิภาพการทำงานของระบบ โดยผูกข้อมูลสองส่วนนี้เข้าด้วยกันผ่าน Trace\_ID
 * QA Test Runner & LLM-Evaluator: ท่อประเมินผลอัตโนมัติที่ทำงานทุกคืน โดยใช้ Gemini 1.5 Pro (LLM-as-a-Judge) ตรวจสอบคำตอบที่ได้คะแนนต่ำ และอัปเดต Prompt ใหม่โดยอัตโนมัติ
